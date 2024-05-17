@@ -1,7 +1,7 @@
 # Sensors catalogue
 This includes solution to collect info about sensors (excel file), transform info to SensorML and to TTL (following SOSA and SSN ontologies, by R scripts), and translate them to HTML landing pages by XSLT. System type, componente type, and instance are considered.
 
-The implementation has been done following Physical Sample Curation recommendations of ESIP, SOSA ontology main version https://www.w3.org/TR/vocab-ssn/ (19-10-2017) and the new draft https://w3c.github.io/sdw-sosa-ssn/ssn/ (09-02-2024 - https://github.com/w3c/sdw-sosa-ssn?tab=readme-ov-file)
+The implementation has been done following SOSA ontology main version https://www.w3.org/TR/vocab-ssn/ (19-10-2017) and the new draft https://w3c.github.io/sdw-sosa-ssn/ssn/ (09-02-2024 - https://github.com/w3c/sdw-sosa-ssn?tab=readme-ov-file)
 
 The proposed work is compliant also with [PIDINST schema](https://docs.pidinst.org/en/latest/white-paper/metadata-schema.html) and, trougth this, with DataCite Metadata Schema 4.4 (mapping is here https://github.com/rdawg-pidinst/schema/blob/master/schema-datacite.rst).
 An example of SensorML use PIDINST schema is here: https://linkedsystems.uk/system/instance/TOOL0022_2490/current/
