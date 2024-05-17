@@ -75,6 +75,5 @@ this function is in the TODO list
 
 The production flow is illustrated in the figure:
 
-![Screenshot 2024-05-16 at 14 28 46](https://github.com/oggioniale/sensors_catalogue/assets/1393893/1990707f-34d4-4e1a-9fad-b94f9192bd14)
-
+<img width="880" alt="Screenshot 2024-05-17 at 12 43 38" src="https://github.com/oggioniale/sensor_catalogue/assets/1393893/d75e1698-6a94-4b01-8177-eab01956175d">
 
