@@ -1,0 +1,45 @@
+@prefix org:   <http://www.w3.org/ns/org#> 
+  @prefix dcterms: <http://purl.org/dc/terms/> 
+  @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> 
+  @prefix vcard: <http://www.w3.org/2006/vcard/ns#> 
+  @prefix addr:  <http://wymiwyg.org/ontologies/foaf/postaddress#> 
+  @prefix foaf:  <http://xmlns.com/foaf/0.1/> 
+  @prefix prov: <http://www.w3.org/ns/prov#> 
+  @prefix dc: <http://purl.org/dc/elements/1.1/> 
+  @prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+<http://rdfdata.get-it.it/sensors/manufacturers/196>
+        a              foaf:Organization ;
+        vcard:email    <mailto:info@browningtrailcams.com> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'USA' ;
+                                                                addr:postcode          '35213' ;
+                                                                addr:region            'Alabama' ;
+                                                                addr:streetNr          'NA' ;
+                                                                addr:thoroughfareName  'Box 130100' ;
+                                                                addr:town              'Birmingham'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <http://www.browningtrailcameras.com> ;
+        foaf:name      'Browning trail cameras' ;
+        foaf:phone     <tel:888.618.4496> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:23:22Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/197>
+        a              foaf:Organization ;
+        vcard:email    <mailto:theteam@openacousticdevices.info> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'England' ;
+                                                                addr:postcode          'OX1 2JD' ;
+                                                                addr:region            'Oxford' ;
+                                                                addr:streetNr          'NA' ;
+                                                                addr:thoroughfareName  'Wellington Square' ;
+                                                                addr:town              'Oxford'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.openacousticdevices.info/> ;
+        foaf:name      'Open Acoustic Devices' ;
+        foaf:phone     <tel:+44-1865-270000> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:23:22Z'^^xsd:dateTime .

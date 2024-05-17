@@ -1,0 +1,171 @@
+@prefix org:   <http://www.w3.org/ns/org#> 
+  @prefix dcterms: <http://purl.org/dc/terms/> 
+  @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> 
+  @prefix vcard: <http://www.w3.org/2006/vcard/ns#> 
+  @prefix addr:  <http://wymiwyg.org/ontologies/foaf/postaddress#> 
+  @prefix foaf:  <http://xmlns.com/foaf/0.1/> 
+  @prefix prov: <http://www.w3.org/ns/prov#> 
+  @prefix dc: <http://purl.org/dc/elements/1.1/> 
+  @prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+<http://rdfdata.get-it.it/sensors/manufacturers/187>
+        a              foaf:Organization ;
+        vcard:email    <mailto:info@avantes.com> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'The Netherlands' ;
+                                                                addr:postcode          '7333 NS' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '28' ;
+                                                                addr:thoroughfareName  'Oude Apeldoornseweg' ;
+                                                                addr:town              'Apeldoorn'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.avantes.com/> ;
+        foaf:name      'Avantes B.V.' ;
+        foaf:phone     <tel:+31-313-670-170> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/188>
+        a              foaf:Organization ;
+        vcard:email    <mailto:NA> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'USA' ;
+                                                                addr:postcode          '19038' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '100' ;
+                                                                addr:thoroughfareName  'East Glenside Avenue' ;
+                                                                addr:town              'Glenside'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://solarlight.com/> ;
+        foaf:name      'Solar Light Company' ;
+        foaf:phone     <tel:1-215-517-8700> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/189>
+        a              foaf:Organization ;
+        vcard:email    <mailto:sales@comarsystems.com> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'United Kingdom' ;
+                                                                addr:postcode          'PO304LY' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          'NA' ;
+                                                                addr:thoroughfareName  'Forest Rd, Newport PO30 4LY' ;
+                                                                addr:town              'Newport'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://comarsystems.com/> ;
+        foaf:name      'Comar Systems Limited.' ;
+        foaf:phone     <tel:+44-1983-828900> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/190>
+        a              foaf:Organization ;
+        vcard:email    <mailto:info@metek.de> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'Germany' ;
+                                                                addr:postcode          '25337' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '4' ;
+                                                                addr:thoroughfareName  'Fritz-Straßmann-Str.' ;
+                                                                addr:town              'Elmshorn'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.metek.de> ;
+        foaf:name      'METEK Meteorologische Messtechnik GmbH' ;
+        foaf:phone     <tel:+49-4121-4359---0> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/191>
+        a              foaf:Organization ;
+        vcard:email    <mailto:info@keller-druck.com> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'Swiss' ;
+                                                                addr:postcode          '8404' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '119' ;
+                                                                addr:thoroughfareName  'St. Gallerstrasse' ;
+                                                                addr:town              'Winterthur'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://keller-druck.com/it/> ;
+        foaf:name      'Keller Pressure' ;
+        foaf:phone     <tel:+41-52-235-25-25> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/192>
+        a              foaf:Organization ;
+        vcard:email    <mailto:NA> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'USA' ;
+                                                                addr:postcode          '95051' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '5301' ;
+                                                                addr:thoroughfareName  'Stevens Creek Blvd' ;
+                                                                addr:town              'Santa Clara'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.agilent.com/> ;
+        foaf:name      'Agilent Technologies' ;
+        foaf:phone     <tel:800-227-9770> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/193>
+        a              foaf:Organization ;
+        vcard:email    <mailto:NA> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'Italy' ;
+                                                                addr:postcode          '3012' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '2/A' ;
+                                                                addr:thoroughfareName  'via Fratta Rotonda Vado Largo' ;
+                                                                addr:town              'Anagni (FR)'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.systea.it/> ;
+        foaf:name      'Systea' ;
+        foaf:phone     <tel:800-950-609> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/194>
+        a              foaf:Organization ;
+        vcard:email    <mailto:sales@tinytag.info> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'United Kingdom' ;
+                                                                addr:postcode          'PO19 8UJ' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          'NA' ;
+                                                                addr:thoroughfareName  'Terminus Road, Chichester PO19 8UJ' ;
+                                                                addr:town              'Chichester'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.geminidataloggers.com/> ;
+        foaf:name      'Gemini - data logger' ;
+        foaf:phone     <tel:+44-(0)-1243-813000> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .
+<http://rdfdata.get-it.it/sensors/manufacturers/195>
+        a              foaf:Organization ;
+        vcard:email    <mailto:colmar@colmaritalia.it> ;
+        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          'NA' ;
+                                                                addr:country           'Italy' ;
+                                                                addr:postcode          '19136' ;
+                                                                addr:region            'NA' ;
+                                                                addr:streetNr          '74' ;
+                                                                addr:thoroughfareName  'Via delle Pianazze' ;
+                                                                addr:town              'La Spezia'
+                                                              ]
+                                             ]
+                       ] ;
+        foaf:homepage  <https://www.colmaritalia.it/it/home/> ;
+        foaf:name      'CO.L.MAR. S.r.l.' ;
+        foaf:phone     <tel:+39-0187-982590> ;
+        dc:creator     <http://orcid.org/0000-0002-7997-219X> ;
+        prov:generatedAtTime      '2024-02-05T15:08:09Z'^^xsd:dateTime .

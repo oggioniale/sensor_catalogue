@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://rdfdata.get-it.it/sensors/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:vcard="http://www.w3.org/2006/vcard/ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:org="http://www.w3.org/ns/org#" xmlns:addr="http://wymiwyg.org/ontologies/foaf/postaddress#" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:dc="http://purl.org/dc/elements/1.1/" xml:base="http://rdfdata.get-it.it/sensors">
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/187">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Avantes B.V.</foaf:name>
+    <foaf:homepage rdf:resource="https://www.avantes.com/"/>
+    <vcard:email rdf:resource="mailto:info@avantes.com"/>
+    <foaf:phone rdf:resource="tel:+31-313-670-170"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Oude Apeldoornseweg</addr:thoroughfareName>
+          <addr:streetNr>28</addr:streetNr>
+          <addr:postcode>7333 NS</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Apeldoorn</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>The Netherlands</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/188">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Solar Light Company</foaf:name>
+    <foaf:homepage rdf:resource="https://solarlight.com/"/>
+    <vcard:email rdf:resource="mailto:NA"/>
+    <foaf:phone rdf:resource="tel:1-215-517-8700"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>East Glenside Avenue</addr:thoroughfareName>
+          <addr:streetNr>100</addr:streetNr>
+          <addr:postcode>19038</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Glenside</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>USA</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/189">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Comar Systems Limited.</foaf:name>
+    <foaf:homepage rdf:resource="https://comarsystems.com/"/>
+    <vcard:email rdf:resource="mailto:sales@comarsystems.com"/>
+    <foaf:phone rdf:resource="tel:+44-1983-828900"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Forest Rd, Newport PO30 4LY</addr:thoroughfareName>
+          <addr:streetNr>NA</addr:streetNr>
+          <addr:postcode>PO304LY</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Newport</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>United Kingdom</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/190">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>METEK Meteorologische Messtechnik GmbH</foaf:name>
+    <foaf:homepage rdf:resource="https://www.metek.de"/>
+    <vcard:email rdf:resource="mailto:info@metek.de"/>
+    <foaf:phone rdf:resource="tel:+49-4121-4359---0"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Fritz-Straßmann-Str.</addr:thoroughfareName>
+          <addr:streetNr>4</addr:streetNr>
+          <addr:postcode>25337</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Elmshorn</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>Germany</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/191">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Keller Pressure</foaf:name>
+    <foaf:homepage rdf:resource="https://keller-druck.com/it/"/>
+    <vcard:email rdf:resource="mailto:info@keller-druck.com"/>
+    <foaf:phone rdf:resource="tel:+41-52-235-25-25"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>St. Gallerstrasse</addr:thoroughfareName>
+          <addr:streetNr>119</addr:streetNr>
+          <addr:postcode>8404</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Winterthur</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>Swiss</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/192">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Agilent Technologies</foaf:name>
+    <foaf:homepage rdf:resource="https://www.agilent.com/"/>
+    <vcard:email rdf:resource="mailto:NA"/>
+    <foaf:phone rdf:resource="tel:800-227-9770"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Stevens Creek Blvd</addr:thoroughfareName>
+          <addr:streetNr>5301</addr:streetNr>
+          <addr:postcode>95051</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Santa Clara</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>USA</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/193">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Systea</foaf:name>
+    <foaf:homepage rdf:resource="https://www.systea.it/"/>
+    <vcard:email rdf:resource="mailto:NA"/>
+    <foaf:phone rdf:resource="tel:800-950-609"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>via Fratta Rotonda Vado Largo</addr:thoroughfareName>
+          <addr:streetNr>2/A</addr:streetNr>
+          <addr:postcode>3012</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Anagni (FR)</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>Italy</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/194">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Gemini - data logger</foaf:name>
+    <foaf:homepage rdf:resource="https://www.geminidataloggers.com/"/>
+    <vcard:email rdf:resource="mailto:sales@tinytag.info"/>
+    <foaf:phone rdf:resource="tel:+44-(0)-1243-813000"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Terminus Road, Chichester PO19 8UJ</addr:thoroughfareName>
+          <addr:streetNr>NA</addr:streetNr>
+          <addr:postcode>PO19 8UJ</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Chichester</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>United Kingdom</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/195">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>CO.L.MAR. S.r.l.</foaf:name>
+    <foaf:homepage rdf:resource="https://www.colmaritalia.it/it/home/"/>
+    <vcard:email rdf:resource="mailto:colmar@colmaritalia.it"/>
+    <foaf:phone rdf:resource="tel:+39-0187-982590"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Via delle Pianazze</addr:thoroughfareName>
+          <addr:streetNr>74</addr:streetNr>
+          <addr:postcode>19136</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>La Spezia</addr:town>
+          <addr:region>NA</addr:region>
+          <addr:country>Italy</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+</rdf:RDF>

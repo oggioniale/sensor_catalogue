@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://rdfdata.get-it.it/sensors/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:vcard="http://www.w3.org/2006/vcard/ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:org="http://www.w3.org/ns/org#" xmlns:addr="http://wymiwyg.org/ontologies/foaf/postaddress#" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:dc="http://purl.org/dc/elements/1.1/" xml:base="http://rdfdata.get-it.it/sensors">
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/196">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Browning trail cameras</foaf:name>
+    <foaf:homepage rdf:resource="http://www.browningtrailcameras.com"/>
+    <vcard:email rdf:resource="mailto:info@browningtrailcams.com"/>
+    <foaf:phone rdf:resource="tel:888.618.4496"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Box 130100</addr:thoroughfareName>
+          <addr:streetNr>NA</addr:streetNr>
+          <addr:postcode>35213</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Birmingham</addr:town>
+          <addr:region>Alabama</addr:region>
+          <addr:country>USA</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+  <foaf:Organization rdf:about="http://rdfdata.get-it.it/sensors/manufacturers/197">
+    <dc:creator rdf:resource="http://orcid.org/0000-0002-7997-219X"/>
+    <foaf:name>Open Acoustic Devices</foaf:name>
+    <foaf:homepage rdf:resource="https://www.openacousticdevices.info/"/>
+    <vcard:email rdf:resource="mailto:theteam@openacousticdevices.info"/>
+    <foaf:phone rdf:resource="tel:+44-1865-270000"/>
+    <addr:address rdf:parseType="Resource">
+      <addr:deliveryPoint rdf:parseType="Resource">
+        <addr:location rdf:parseType="Resource">
+          <addr:thoroughfareName>Wellington Square</addr:thoroughfareName>
+          <addr:streetNr>NA</addr:streetNr>
+          <addr:postcode>OX1 2JD</addr:postcode>
+          <addr:building>NA</addr:building>
+          <addr:town>Oxford</addr:town>
+          <addr:region>Oxford</addr:region>
+          <addr:country>England</addr:country>
+        </addr:location>
+      </addr:deliveryPoint>
+    </addr:address>
+  </foaf:Organization>
+</rdf:RDF>
