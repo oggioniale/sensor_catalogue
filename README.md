@@ -10,8 +10,7 @@ An example of SensorML use PIDINST schema is here: https://linkedsystems.uk/syst
 library(magrittr)
 source("info.R")
 # info.R is not provided trough this repo because contains the password of services
-source("manufacturers/check_man_exist.R")
-source("manufacturers/new_manufacturer.R")
+source("check_man_exist.R")
 source("sensors2SensorML/sensors_catalogue.R")
 source("SensorML2TTL/sensorML_type_rdf.R")
 ```
