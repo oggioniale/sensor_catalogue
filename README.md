@@ -1,10 +1,11 @@
 # Sensors catalogue
-This includes solution to collect info about sensors (excel file), transform info to SensorML and to TTL (following SOSA and SSN ontologies, by R scripts), and translate them to HTML landing pages by XSLT. System type, componente type, and instance are considered.
+This project involves developing a solution to collect information and metadata about sensors from an Excel file, transform it into SensorML and TTL (following the SOSA and SSN ontologies using R functions), and then translate them into HTML landing pages using XSLT. The system considers type, component type, and instance.
 
-The implementation has been done following SOSA ontology main version https://www.w3.org/TR/vocab-ssn/ (19-10-2017) and the new draft https://w3c.github.io/sdw-sosa-ssn/ssn/ (09-02-2024 - https://github.com/w3c/sdw-sosa-ssn?tab=readme-ov-file)
+The implementation adheres to the SOSA ontology main version as specified in [SOSA/SSN ontology documentation from 2017](https://www.w3.org/TR/vocab-ssn/) and the [new draft version](https://w3c.github.io/sdw-sosa-ssn/ssn/) from February 2024.
 
-The proposed work is compliant also with [PIDINST schema](https://docs.pidinst.org/en/latest/white-paper/metadata-schema.html) and, trougth this, with DataCite Metadata Schema 4.4 (mapping is here https://github.com/rdawg-pidinst/schema/blob/master/schema-datacite.rst).
-An example of SensorML use PIDINST schema is here: https://linkedsystems.uk/system/instance/TOOL0022_2490/current/
+The proposed work is also compliant with the [PIDINST schema](https://docs.pidinst.org/en/latest/white-paper/metadata-schema.html), and through this compliance, it aligns with the DataCite Metadata Schema 4.4 ([mapping available here](https://github.com/rdawg-pidinst/schema/blob/master/schema-datacite.rst))).
+
+An example of using SensorML with the PIDINST schema can be found [here](https://linkedsystems.uk/system/instance/TOOL0022_2490/current/).
 
 ```
 library(magrittr)
@@ -16,61 +17,20 @@ source("SensorML2TTL/sensorML_type_rdf.R")
 ```
 
 # The workflow of this app is:
-1. fill the `sensors.xlsx` spreadsheet
+1. Fill the `sensors_template.xlsx` spreadsheet, including the manufacturer sheet. If the desired manufacturer is not present in the list, add the required information filling the sheet `new_manufacturer`.
 
-2. check if the information about manufacturer is in [triplestore fuseki](http://fuseki1.get-it.it/dataset.html?tab=query&ds=/manufacturers);
-if it is not presents:
-2.1. execute the `new_manufacturer_ui()` function for create single manufacturer record
-in a triple store by web app form;
-or
-2.2.1. fill the `new_manufacturer.xlsx` file;
-2.2.2. execute the `new_manufacturer()` functions for create RDF (both ttl and xml)
-version of the record(s) included in the manufacturer excel file;
-
-```
-new_manufacturer(
-  excel_path = "new_manufacturers.xlsx",
-  orcid_creator = "http://orcid.org/0000-0002-7997-219X"
-)
-```
-2.2.3 update GitHub repository `https://github.com/oggioniale/RDF-FOAF-Manufacturer-list/tree/master`
-```
-path_github <- "/Users/alessandrooggioni/Sites/GitHub/"
-repo <- paste0(path_github, "RDF-FOAF-Manufacturer-list/")
-```
-copy files rdf created to the folder of github repo "RDF-FOAF-Manufacturer-list" ----
-```
-files <- list.files(path = "./manufacturers", pattern = "\\.rdf$")
-file.copy(from = paste0("./manufacturers/", files), to = repo)
-# remotes::install_github("ropensci/git2r")
-git2r::status(repo = repo)
-setwd(repo)
-git2r::add(repo = repo, path = list.files(pattern = files))
-git2r::commit(repo = repo, message = "new manufacturers")
-setwd("../sensors_catalogue/")
-```
-TODO missing the push!
-```
-# git2r::push(...)
-```
-2.2.4. open the terminal and execute git push
-
-3. use `sensors_catalogue()` function for obtain SensorML XML of system and, eventually,
-of components for all the sensors described in the excel file;
+2. Use the `sensors_catalogue()` function to obtain the SensorML XML for the system and, if applicable, for the components of all the sensors described in the `sensors_template.xlsx` spreadsheet;
 ```
 sensors_catalogue(excel_path = "./sensors.xlsx")
 ```
 
-4. use `sensorML_type_rdf()` function for obtain ttl of system and, eventually, of
-components starting from XML file (the output of `sensors_catalogue()` function);
-```
-sensorML_type_rdf(
-  files_path = "./sensorML_files_system_4ce8484c-b9e1-11ee-98e3-daf69f6cfb8a/"
-)
-```
-5. use `sensorML_instance_rdf()` function for obtain ttl version of sensor instance
-shared in SOS system.
-this function is in the TODO list 
+The output of the functions is a folder for each system present in the `sensors_template.xlsx` spreadsheet, named using the convention <sensorML_files_system_UUID>. Each folder contains the following:
+
+- An XML file for the system in the `system` folder
+- XML files for each system component, if any, in the `components` folder
+- TTL files for both the system and components, if any, in the `system_components_files_ttl` folder
+- A copy of the system datasheet, if provided, in the `datasheet` folder
+- A copy of the system image, if provided, in the `image` folder
 
 The production flow is illustrated in the figure:
 
