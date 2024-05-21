@@ -16,15 +16,15 @@ source("sensors2SensorML/sensors_catalogue.R")
 source("SensorML2TTL/sensorML_type_rdf.R")
 ```
 
-# The workflow of this app is:
+# The two steps of this are:
 1. Fill the `sensors_template.xlsx` spreadsheet, including the manufacturer sheet. If the desired manufacturer is not present in the list, add the required information filling the sheet `new_manufacturer`.
 
-2. Use the `sensors_catalogue()` function to obtain the SensorML XML for the system and, if applicable, for the components of all the sensors described in the `sensors_template.xlsx` spreadsheet;
+2. Use the `sensors_catalogue()` function to obtain the SensorML XML and TTL for the system and, if applicable, for the components of all the sensors described in the `sensors_template.xlsx` spreadsheet;
 ```
 sensors_catalogue(excel_path = "./sensors.xlsx")
 ```
 
-The output of the functions is a folder for each system present in the `sensors_template.xlsx` spreadsheet, named using the convention <sensorML_files_system_UUID>. Each folder contains the following:
+The output files for each sensors described in the `sensors_template.xlsx` spreadsheet are stored in a folder named using the convention <sensorML_files_system_UUID>. Each folder contains the following:
 
 - An XML file for the system in the `system` folder
 - XML files for each system component, if any, in the `components` folder
@@ -32,7 +32,7 @@ The output of the functions is a folder for each system present in the `sensors_
 - A copy of the system datasheet, if provided, in the `datasheet` folder
 - A copy of the system image, if provided, in the `image` folder
 
-The production flow is illustrated in the figure:
+The complete process is illustrated in the figure:
 
 <img width="880" alt="Screenshot 2024-05-17 at 12 43 38" src="https://github.com/oggioniale/sensor_catalogue/assets/1393893/d75e1698-6a94-4b01-8177-eab01956175d">
 
