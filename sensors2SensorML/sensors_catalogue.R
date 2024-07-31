@@ -26,6 +26,12 @@ sensors_catalogue <- function(excel_path = NULL) {
   excel_file <- excel_file |>
     dplyr::group_by(sensor) |>
     tidyr::nest()
+  # manufacturer
+  manufacturer_list <- readxl::read_excel(excel_path, sheet = "new_manufacturer")
+  manufacturer_list <- manufacturer_list[-c(1),]
+  if (nrow(manufacturer_list) > 0) {
+    new_manufacturer(excel_path = excel_path)
+  }
   # cycle for each system + components (if any) ----
   for (i in 1:nrow(excel_file)) {
     # check if manufacturer of this sensor exist in the triplestore
