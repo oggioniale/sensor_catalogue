@@ -117,8 +117,8 @@ function(input, output, session) {
             escape = FALSE,
             caption = htmltools::tags$caption(
                 style = 'caption-side: bottom; text-align: center;',
-                'Tabella - ', htmltools::em(paste0(
-                    'Contiene tutte le risorse da me caricate nel sito BrickSet (https://brickset.com).'
+                'Table - ', htmltools::em(paste0(
+                    'Contains model sensors'
                 ))
             ),
             filter = 'top'
