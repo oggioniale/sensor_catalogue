@@ -216,7 +216,7 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
   # name of system file ----
   file_name <- paste0("ID_system_", system_uuid)
   # read xml ----
-  physicalSystemType_XML_base <- xml2::read_xml("base_insertSensor.xml")
+  physicalSystemType_XML_base <- xml2::read_xml("baseSystem_insertSensor.xml")
   # xml ----
   a <- physicalSystemType_XML_base %>%
     # swes:extension
@@ -913,7 +913,7 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
     # name of component file ----
     file_name <- paste0("ID_component_", component_uuid)
     # read xml ----
-    physicalComponentType_XML_base <- xml2::read_xml("base_insertSensor.xml")
+    physicalComponentType_XML_base <- xml2::read_xml("baseComponent_insertSensor.xml")
     # xml ----
     physicalComponentType_XML_base %>%
       # swes:extension
