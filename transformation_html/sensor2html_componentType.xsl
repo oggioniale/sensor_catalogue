@@ -476,7 +476,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Capabilities</th>
+                            <th scope="col">Capability</th>
                             <th scope="col">Value(s)</th>
                             <th scope="col">unit of measure</th>
                         </tr>

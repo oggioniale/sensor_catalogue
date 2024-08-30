@@ -281,7 +281,7 @@
                                                                     <li><a class="d-inline-flex align-items-center rounded" href="#classification">Classification</a></li>
                                                                     <li><a class="d-inline-flex align-items-center rounded" href="#characteristics">Characteristics</a></li>
                                                                     <li><a class="d-inline-flex align-items-center rounded" href="#capabilities">Capabilities</a></li>
-                                                                    <li><a class="d-inline-flex align-items-center rounded" href="#contacts">Contacts</a></li>
+                                                                    <li><a class="d-inline-flex align-items-center rounded" href="#contact">Contacts</a></li>
                                                                     <li><a class="d-inline-flex align-items-center rounded" href="#documentation">Documentation</a></li>
                                                                     <li><a class="d-inline-flex align-items-center rounded" href="#components">Components</a></li>
                                                                 </ul>
@@ -406,10 +406,10 @@
                                                         </div>
                                                     </article>
                                                     <hr/>
-                                                    <article class="my-3" id="contacts">
+                                                    <article class="my-3" id="contact">
                                                         <div class="bd-heading sticky-xl-top align-self-start mt-5 mb-3 mt-xl-0 mb-xl-2">
                                                             <h4>Manufacturer</h4>
-                                                            <!--<xsl:call-template name="contacts"/>-->
+                                                            <xsl:call-template name="contact"/>
                                                         </div>
                                                     </article>
                                                     <hr/>
@@ -577,7 +577,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Electrical requirements</th>
+                            <th scope="col">Electrical requirement</th>
                             <th scope="col">Value(s)</th>
                             <th scope="col">unit of measure</th>
                         </tr>
@@ -697,7 +697,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Transmission Mode</th>
+                            <th scope="col">Transmission mode</th>
                             <th scope="col">Value</th>
                             <th scope="col">unit of measure</th>
                         </tr>
@@ -726,7 +726,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th scope="col">Capabilities</th>
+                            <th scope="col">Capability</th>
                             <th scope="col">Value(s)</th>
                             <th scope="col">unit of measure</th>
                         </tr>
@@ -839,13 +839,13 @@
     </xsl:template>
 
     <!-- template contacts -->
-    <!--<xsl:template name="contacts">
+    <xsl:template name="contact">
         <div>
-            <xsl:variable name="contactURI" select="//sml:contacts/sml:ContactList/sml:contact/@xlink:href"/> <!-\- e.g. http://rdfdata.get-it.it/sensors/manufacturers/83 -\->
-            <xsl:variable name="contactName" select="//sml:contacts/sml:ContactList/sml:contact/@xlink:title"/> <!-\- e.g. Nortek -\->
-            <xsl:variable name="contactXMLLodViewPage" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=application/rdf+xml')"/> <!-\- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/83&output=application/rdf+xml -\->
-            <xsl:variable name="contactTurtle" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=text/turtle')"/> <!-\- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/170&output=text/turtle -\->
-            <xsl:variable name="contactJSONLodViewPage" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=application/ld+json')"/> <!-\- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/83&output=application/ld+json -\->
+            <xsl:variable name="contactURI" select="//sml:contacts/sml:ContactList/sml:contact/@xlink:href"/> <!-- e.g. http://rdfdata.get-it.it/sensors/manufacturers/83 -->
+            <xsl:variable name="contactName" select="//sml:contacts/sml:ContactList/sml:contact/@xlink:title"/> <!-- e.g. Nortek -->
+            <xsl:variable name="contactXMLLodViewPage" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=application/rdf+xml')"/> <!-- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/83&output=application/rdf+xml -->
+            <xsl:variable name="contactTurtle" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=text/turtle')"/> <!-- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/170&output=text/turtle -->
+            <xsl:variable name="contactJSONLodViewPage" select="concat('http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&amp;IRI=', $contactURI, '&amp;output=application/ld+json')"/> <!-- http://lodview.get-it.it/lodview/?sparql=http://fuseki1.get-it.it/manufacturers/query&IRI=http://rdfdata.get-it.it/sensors/manufacturers/83&output=application/ld+json -->
             <xsl:if test="$contactURI">
                 <div>
                     <b>
@@ -878,7 +878,7 @@
                     <xsl:text> </xsl:text>
                     <b>
                         <a role="button" class="btn btn-success btn-xs"
-                            href="{$contactXMLLodViewPage}" download="{$contactXMLLodViewPage}" target="_blank">
+                            href="{$contactJSONLodViewPage}" download="{$contactJSONLodViewPage}" target="_blank">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16"
                                 height="16" fill="currentColor" class="bi bi-download"
                                 viewBox="0 0 16 16">
@@ -896,13 +896,24 @@
                         <path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1ZM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1Z"></path>
                         <path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V1Zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3V1Z"></path>
                     </svg>
-                    <xsl:text> </xsl:text><a href="{document($contactXMLLodViewPage)//rdf:RDF/rdf:Description/foaf:homepage/@rdf:resource}" target="_blank">
-                        <xsl:value-of select="document($contactXMLLodViewPage)//rdf:RDF/rdf:Description/foaf:name"/>
-                    </a>
+                    <!--non usabile perché LodeView è senza certificato-->
+                    <!--<xsl:text> </xsl:text><a href="{document($contactXMLLodViewPage)//rdf:RDF/rdf:Description[4]/foaf:homepage/@rdf:resource}" target="_blank">
+                        <xsl:value-of select="document($contactXMLLodViewPage)//rdf:RDF/rdf:Description[4]/foaf:name"/>
+                    </a>-->
+                    <xsl:text> </xsl:text><a href="{$contactURI}" target="_blank"><xsl:value-of select="$contactURI"/></a>
                 </div>
             </xsl:if>
+            <!--non usabile perché LodeView è senza certificato-->
+            <script type="text/javascript">
+                  (async () => {
+                    const contactJSONLD = '<xsl:value-of select="$contactJSONLodViewPage"/>';
+                    const responseContact = await fetch(contactJSONLD);
+                    const jsonContact = await responseContact.json();
+                    console.log('jsonContact', jsonContact);
+                  })();
+            </script>
         </div>
-    </xsl:template>-->
+    </xsl:template>
     
     <!-- template documentation -->
     <xsl:template name="documentation">
