@@ -63,6 +63,32 @@ library(Sensor)
 Sensor::run_sensorApp()
 ```
 
+## 🌐 Shiny Application: *Sensor App*
+
+The [**Sensor App**](https://oggioniale.shinyapps.io/sensorapp/) is an interactive **Shiny interface** that provides access to and visualization of **sensor metadata** stored as RDF/Turtle (`.ttl`) files in an **Apache Jena Fuseki** triple store.  
+The current implementation connects to the **LTER-Italy** Fuseki endpoint, displaying metadata generated through the **Sensors** R package.
+
+### Main Features
+- Explore and visualize information about **sensor systems**, and their **components**.  
+- Retrieve and display RDF data compliant with semantic web standards.  
+- Navigate between related entities such as manufacturers, observed properties, and deployments.  
+- Support **FAIR** data access by offering a user-friendly interface to query semantic resources.
+
+### Ontologies and Reference Schemas
+The application and the underlying data model adhere to several international standards and vocabularies:
+
+- **SOSA/SSN Ontology** – describing sensors, systems, and observations ([W3C Recommendation](https://www.w3.org/TR/vocab-ssn/) and [draft version October 2025](https://w3c.github.io/sdw-sosa-ssn/ssn/))  
+- **PROV-O** – provenance metadata model ([W3C Recommendation, 2013](https://www.w3.org/TR/prov-o/))  
+- **DCAT** – dataset and catalog metadata ([W3C Recommendation, 2020](https://www.w3.org/TR/vocab-dcat-3/))  
+- **FOAF** – people and organizations representation ([FOAF Vocabulary Specification](http://xmlns.com/foaf/spec/))  
+- **PIDINST Schema** – persistent identifiers for instruments ([RDA WG Schema](https://docs.pidinst.org/en/latest/))  
+- **DataCite Metadata Schema 4.4** – alignment for research data and instrument identification ([Schema-datacite](https://github.com/rdawg-pidinst/schema/blob/master/schema-datacite.rst))
+
+This app acts as the **front-end viewer** of the LTER-Italy Sensor Catalogue, enabling discoverability and interoperability of environmental monitoring devices within the **eLTER Research Infrastructure**.
+
+🔗 **Access the app online:**  
+👉 [https://oggioniale.shinyapps.io/sensorapp/](https://oggioniale.shinyapps.io/sensorapp/)
+
 ## Output structure
 
 For each sensor described in the sensors_template.xlsx file, a dedicated folder is created following the convention:
