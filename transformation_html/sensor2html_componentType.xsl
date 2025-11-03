@@ -33,7 +33,10 @@
                 <meta name="description"
                     content="Human readable version of a sensor description from SensorML"/>
                 <meta name="author" content="Alessandro Oggioni"/>
-                <link rel="icon" href="https://www.lteritalia.it/wordpress/wp-content/uploads/2023/09/solo_foglia.png"/>
+                <link rel="icon" href="https://www.get-it.it/assets/img/icon/logo1-ico.png"/>
+                <!-- if the idea is to include the sensor type as a facility of LTER Italia -->
+                <!--<link rel="icon" href="https://www.lteritalia.it/wordpress/wp-content/uploads/2023/09/solo_foglia.png"/>-->
+                
                 <title>Sensor system type description</title>
                 
                 <link href="//www.get-it.it/objects/types/transformation_html/assets/css/font-awesome.min.css" rel="stylesheet"/>
@@ -247,16 +250,26 @@
                     <!-- Navbar -->
                     <nav class="navbar navbar-light">
                         <!-- main navigation bar -->
-                        <div class="container-fluid" style="background-color: #334155;margin-top: 19px;">
+                        <div class="container-fluid" style="background-color: #3596b6;margin-top: 19px;">
+                        <!-- if the idea is to include the sensor type as a facility of LTER Italia -->
+                        <!--<div class="container-fluid" style="background-color: #334155;margin-top: 19px;">-->
                             <div class="navbar-header">
-                                <a class="navbar-brand" href="http://www.lteritalia.it" target="_blank">
-                                    <img src="https://www.lteritalia.it/wordpress/wp-content/uploads/LTER-IT-033-300x89.png"
+                                <a class="navbar-brand" href="https://www.get-it.it" target="_blank">
+                                    <img src="https://www.get-it.it/assets/img/cover/GETweb04.png"
                                         height="50"
                                         style="padding-top: 0px;margin-top: -19px;"/>
                                 </a>
+                                <!-- if the idea is to include the sensor type as a facility of LTER Italia -->
+                                <!--<a class="navbar-brand" href="http://www.lteritalia.it" target="_blank">
+                                    <img src="https://www.lteritalia.it/wordpress/wp-content/uploads/LTER-IT-033-300x89.png"
+                                        height="50"
+                                        style="padding-top: 0px;margin-top: -19px;"/>
+                                </a>-->
                             </div>
                             <ul class="nav navbar-nav navbar-right">
-                                <span style="color: #94c5e5"><strong><li class="navbar-text">Sensor component landing page</li></strong></span>
+                                <span style="color: #444444"><strong><li class="navbar-text">Sensor component landing page</li></strong></span>
+                                <!-- if the idea is to include the sensor type as a facility of LTER Italia -->
+                                <!--<span style="color: #94c5e5"><strong><li class="navbar-text">Sensor component landing page</li></strong></span>-->
                             </ul>
                         </div>
                         <!-- secondary navigation bar -->

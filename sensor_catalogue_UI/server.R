@@ -19,13 +19,13 @@ function(input, output, session) {
          PREFIX foaf: <http://xmlns.com/foaf/0.1/>
          SELECT ?c ?label ?doc ?image ?descr ?hosts ?comp_label ?man_name ?man_uri
          WHERE {
-           ?c rdf:type sosa:Platform .
+           ?c rdf:type sosa:System .
            OPTIONAL { ?c rdfs:label ?label . }
            OPTIONAL { ?c prov:wasDerivedFrom ?doc .}
            OPTIONAL { ?c dcat:contactPoint ?contact .}
            OPTIONAL { ?c dcmitype:Image ?image . }
            OPTIONAL { ?c rdfs:comment ?descr . }
-           OPTIONAL { ?c sosa:hosts ?hosts . 
+           OPTIONAL { ?c sosa:hasSubSystem ?hosts . 
                OPTIONAL { ?hosts rdfs:label ?comp_label .}
            }
            OPTIONAL {

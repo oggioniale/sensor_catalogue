@@ -1,0 +1,50 @@
+Package: Sensor
+Type: Package
+Title: Tools for Generating and Validating Sensor Metadata in SensorML and RDF Formats
+Version: 0.1.0
+Authors@R: 
+    person(given = "Alessandro",
+           family = "Oggioni",
+           role = c("aut", "cre"),
+           email = "oggioni.a@cnr.it",
+           comment = c(ORCID = "0000-0002-7997-219X"))
+Description: 
+ Provides a suite of tools for creating, transforming, and validating metadata 
+ about sensors, their components, and their manufacturers. The workflow starts 
+ from tabular data (e.g., Excel) describing sensors and produces SensorML files 
+ for both sensor systems and components, RDF/Turtle files for sensor types and 
+ instances, and RDF records for manufacturers. The package ensures compliance 
+ with the SOSA/SSN ontology, FOAF, PROV, DCAT, and PIDINST schemas, allowing 
+ integration with FAIR data catalogues and triple stores such as Apache Jena Fuseki.
+ Each generated RDF/Turtle file is automatically validated for structural 
+ consistency and ontology compliance using rdflib. The overall solution supports 
+ the generation of HTML landing pages via XSLT transformations and follows the 
+ latest SOSA/SSN specifications (W3C 2017 and October 2025 drafts). The package 
+ is also aligned with the PIDINST schema 
+ (https://docs.pidinst.org/en/latest/white-paper/metadata-schema.html) and, through 
+ this, with the DataCite Metadata Schema 4.4. An example of a compliant 
+ SensorML–PIDINST implementation is available at 
+ https://linkedsystems.uk/system/instance/TOOL0022_2490/current/.
+License: `use_gpl3_license()`
+URL: https://github.com/oggioniale/sensor_catalogue
+BugReports: https://github.com/oggioniale/sensor_catalogue/issues
+Encoding: UTF-8
+Language: en-GB
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.2)
+VignetteBuilder: 
+    knitr
+Suggests:
+    usethis,
+    devtools
+Imports:
+    xml2,
+    stringr,
+    dplyr,
+    rdflib,
+    httr2,
+    tibble,
+    tools,
+    utils,
+    magrittr

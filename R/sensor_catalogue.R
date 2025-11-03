@@ -1,155 +1,208 @@
-#' @title
+#' Generate SensorML XML descriptions from a sensor catalogue Excel file
 #' @description
-#' A short description...
-#' 
-#' @param excel_path description
-#' @return description
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
-#' @importFrom package function
-#' @export
-#' @example
-#' \dontrun{
-#' sensors_catalogue(excel_path = "./sensors_template.xlsx")
+#' This function reads an Excel file describing sensor systems and components,
+#' validates manufacturer information against a reference triple store (Fuseki),
+#' and generates corresponding SensorML 2.0 XML files for each system and its components.
+#' If new manufacturers are listed in the Excel file, the function checks their presence
+#' in the Fuseki *manufacturers* dataset and, if missing, automatically creates
+#' RDF/Turtle (`.ttl`) files describing them via the `sensors_new_manufacturer()` function.
+#' In this case, the execution stops until the new TTL files are uploaded manually to Fuseki.
+#' @details
+#' The input Excel file must contain at least one sheet named **"SensorInfo"**,
+#' listing metadata for sensors, systems, and components (e.g. manufacturer name,
+#' model, identifier, observed properties, capabilities, etc.).  
+#' Optionally, a second sheet **"new_manufacturer"** may define metadata for new
+#' manufacturers to be added to the catalogue.
+#'
+#' The workflow executed by this function includes the following steps:
+#' \itemize{
+#'   \item Reads and cleans valid rows from the `"SensorInfo"` sheet;
+#'   \item If the `"new_manufacturer"` sheet exists:
+#'     \itemize{
+#'       \item Checks each manufacturer against the Fuseki *manufacturers* dataset (`sensors_check_man_exist()`);
+#'       \item If missing, generates RDF/TTL records using `sensors_new_manufacturer()` and stops execution;
+#'     }
+#'   \item If all manufacturers exist in Fuseki:
+#'     \itemize{
+#'       \item Groups entries by sensor name;
+#'       \item Generates unique UUIDs for each sensor and component;
+#'       \item Creates SensorML 2.0 XML files for each system and component
+#'             via `sensors_sysTypeXML()` and `sensors_compTypeXML()`;
+#'     }
+#'   \item The XML files can later be converted into RDF/Turtle using
+#'         the `sensors_type_rdf()` function or uploaded to a Sensor Observation Service (SOS).
 #' }
-#' 
+#'
+#' @param excel_path Character string. Path to the Excel file containing the sensor catalogue.
+#' Must include the sheet `"SensorInfo"`, and `"new_manufacturer"`.
+#'
+#' @return
+#' The function does not return an object in R.
+#' It creates a directory for each system named `Sensors_files_system_<UUID>/`
+#' containing:
+#' \itemize{
+#'   \item `/system/` — XML file for the main system;
+#'   \item `/components/` — XML files for all components (if any);
+#'   \item `/system_components_files_ttl/` — generated RDF/Turtle files after running `sensors_type_rdf()`.
+#' }
+#' If missing manufacturers are detected, the function generates RDF/Turtle files
+#' via `sensors_new_manufacturer()` and stops, prompting the user to upload these TTL files
+#' into the Fuseki *manufacturers* dataset before resuming execution.
+#'
+#' @seealso
+#' \code{\link{sensors_check_man_exist}}, \code{\link{sensors_new_manufacturer}},
+#' \code{\link{sensors_sysTypeXML}}, \code{\link{sensors_compTypeXML}},
+#' \code{\link{sensors_type_rdf}}
+#' @author
+#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' @importFrom readxl read_excel
+#' @importFrom dplyr filter group_by
+#' @importFrom tidyr nest
+#' @importFrom uuid UUIDgenerate
+#' @export
+#' @examples
+#' \dontrun{
+#' sensors_catalogue(
+#'   excel_path = "sensors_list/CristianoFugazza/sensors_CristianoFugazza.xlsx"
+#' )
+#' }
+#'
 ### function sensors_catalogue
 sensors_catalogue <- function(excel_path = NULL) {
-  # read excel file ----
+  # --- 1. Load Excel file ---
+  if (is.null(excel_path) || !file.exists(excel_path)) {
+    stop("Excel file not found. Please provide a valid path.")
+  }
+  message("\n--- Reading 'SensorInfo' sheet ---")
   excel_file <- readxl::read_excel(excel_path, sheet = "SensorInfo")
-  # lines concerning examples, units of measurement and data types are removed ----
-  excel_file <- excel_file[-c(1:10),]
-  # if excel file contains only example sensor ----
-  # excel_file <- excel_file[c(-1, -2),]
-  # delete row without sensor or components info ----
+  # Remove example/unit/type rows and empty lines
+  excel_file <- excel_file[-c(1:10), ]
   excel_file <- dplyr::filter(excel_file, rowSums(is.na(excel_file)) != ncol(excel_file))
-  # group by sensor name ----
+  # Group by sensor name
   excel_file <- excel_file |>
     dplyr::group_by(sensor) |>
     tidyr::nest()
-  # manufacturer
-  manufacturer_list <- readxl::read_excel(excel_path, sheet = "new_manufacturer")
-  manufacturer_list <- manufacturer_list[-c(1),]
-  if (nrow(manufacturer_list) > 0) {
-    new_manufacturer(excel_path = excel_path)
+  # --- 2. Check new manufacturers ---
+  message("\n--- Checking 'new_manufacturer' sheet ---")
+  # Read manufacturer sheet if available
+  if ("new_manufacturer" %in% readxl::excel_sheets(excel_path)) {
+    manufacturer_list <- readxl::read_excel(excel_path, sheet = "new_manufacturer")
+    manufacturer_list <- manufacturer_list[-c(1), ]  # remove header example line
+  } else {
+    manufacturer_list <- data.frame()
   }
-  # cycle for each system + components (if any) ----
-  for (i in 1:nrow(excel_file)) {
-    # check if manufacturer of this sensor exist in the triplestore
-    man_exist <- check_man_exist(
-      manufacturer_name = excel_file$data[[i]]$manufacturer[1]
-    )
-    if (length(man_exist) >= 1) {
-      sensor <- excel_file$data[[i]]
-      # assign system and component IDs, so that references can be made ----
-      uuids <- sapply(1:nrow(sensor), uuid::UUIDgenerate)
-      # use the functions sensorML_sysTypeXML() and sensorML_compTypeXML() to create the different XML ----
-      sensorML_sysTypeXML(sensorList = sensor, uuidsList = uuids)
-      if (nrow(sensor) > 1) {
-        sensorML_compTypeXML(sensorList = sensor, uuidsList = uuids)
+  # --- 3. Verify manufacturer existence in Fuseki ---
+  if (nrow(manufacturer_list) > 0) {
+    message("\n--- Verifying manufacturers in Fuseki ---")
+    # track which are missing and which exist
+    missing_manufacturers <- c()
+    existing_manufacturers <- c()
+    for (i in seq_len(nrow(manufacturer_list))) {
+      man_name <- manufacturer_list$name[i]
+      if (is.na(man_name) || man_name == "") next
+      man_exist <- sensors_check_man_exist(manufacturer_name = man_name)
+      if (!is.null(man_exist) && nrow(man_exist) > 0) {
+        message("✓ Manufacturer already exists in Fuseki: ", man_name)
+        existing_manufacturers <- c(existing_manufacturers, man_name)
+      } else {
+        message("⚠️ Manufacturer not found in Fuseki: ", man_name)
+        missing_manufacturers <- c(missing_manufacturers, man_name)
       }
-      # use the function sensorMLType2rdf to create ttl of SensorML ----
-      root_dir <- paste0(
-        "sensorML_files_system_",
-        uuids[1]
+    }
+    # if missing manufacturers found, filter list and generate TTL
+    if (length(missing_manufacturers) > 0) {
+      message("\n--- Generating RDF TTL only for new (missing) manufacturers ---")
+      # Filter the Excel "new_manufacturer" sheet to keep only the missing ones
+      manu_to_create <- manufacturer_list |>
+        dplyr::filter(name %in% missing_manufacturers)
+      # Run sensors_new_manufacturer() only for this filtered set
+      sensors_new_manufacturer(man_table = manu_to_create)
+      stop(
+        "\n----\n",
+        "The following manufacturers were not found in Fuseki:\n",
+        paste0(" - ", missing_manufacturers, collapse = "\n"),
+        "\n\nA new RDF TTL file has been generated (only for missing manufacturers) ",
+        "via sensors_new_manufacturer().\nPlease upload it to the 'manufacturers' dataset in Fuseki, ",
+        "then re-run sensors_catalogue().\n",
+        "Execution stopped.\n----\n"
       )
-      # TODO modify the sensorMLType2rdf function. The function as it is built now starts from the XML files of type systems
-      # and type components, both of which do not contain information regarding e.g. observed property, contacts, position, etc. 
-      # In addition in SOSA or SSN it is not possible to have the hierarchy and discriminate between sensor type and sensor instance.
-      # So, I think we need to produce the transformation for sensor instances only. How can this be done? How is it possible to take
-      # all the XML type information (system, component and instance) and transform it into TTL?
-      # if (dir.exists(root_dir)) {
-      #   if (nrow(sensor) > 1 && 'component' %in% sensor$sensor_level) {
-      #     sensorMLType2rdf(
-      #       file_folder = paste0(getwd(), "/", root_dir, "/system/")
-      #     )
-      #     sensorMLType2rdf(
-      #       file_folder = paste0(getwd(), "/", root_dir, "/components/")
-      #     )
-      #   } else { # nrow(sensor) = 1
-      #     sensorMLType2rdf(
-      #       file_folder = paste0(getwd(), "/", root_dir, "/system/")
-      #     )
-      #   }
-      # }
-      # send the XML files to 52N SOS endpoint
-      # xml_comp_files <- list.files(path = paste0(getwd(), "/", root_dir, "/components"), pattern = "\\.xml$")
-      # xml_sys_files <- list.files(path = paste0(getwd(), "/", root_dir, "/system"), pattern = "\\.xml$")
-      # for (z in 1:length(xml_comp_files)) {
-      #   new_compType_qr <- httr2::request("https://dev.get-it.it/observations/sos") |>
-      #     httr2::req_auth_basic(username = user_sos, password = pwd_sos) |>
-      #     httr2::req_auth_bearer_token(token = token_sos) |>
-      #     httr2::req_method("POST") |>
-      #     httr2::req_body_file(
-      #       path = paste0(getwd(), "/", root_dir, "/components/", xml_comp_files[z]),
-      #       type = "application/xml"
-      #     ) |>
-      #     httr2::req_retry(max_tries = 3, max_seconds = 120)
-      #   httr2::req_perform(new_compType_qr, verbosity = 3)
-      # }
-      # new_sysType_qr <- httr2::request("https://dev.get-it.it/observations/sos") |>
-      #   httr2::req_auth_basic(username = user_sos, password = pwd_sos) |>
-      #   httr2::req_auth_bearer_token(token = token_sos) |>
-      #   httr2::req_method("POST") |>
-      #   httr2::req_body_file(
-      #     path = paste0(getwd(), "/", root_dir, "/system/", xml_sys_files),
-      #     type = "application/xml"
-      #   ) |>
-      #   httr2::req_retry(max_tries = 3, max_seconds = 120)
-      # httr2::req_perform(new_sysType_qr, verbosity = 3)
-      # TODO send the spreadsheet file to website
-      # doc_qr <- httr2::request("xxx") |>
-      #   httr2::req_auth_basic(username = xxx, password = xxx) |>
-      #   httr2::req_auth_bearer_token(token = xxx) |>
-      #   httr2::req_method("POST") |>
-      #   httr2::req_body_file(
-      #     path = list.files(paste0(getwd(), "/", root_dir, "/datasheet/")),
-      #     type = "xxx"
-      #   ) |>
-      #   httr2::req_retry(max_tries = 3, max_seconds = 120)
-      # httr2::req_perform(doc_qr, verbosity = 3)
-      # TODO send the image file to website
-      # img_qr <- httr2::request("xxx") |>
-      #   httr2::req_auth_basic(username = xxx, password = xxx) |>
-      #   httr2::req_auth_bearer_token(token = xxx) |>
-      #   httr2::req_method("POST") |>
-      #   httr2::req_body_file(
-      #     path = list.files(paste0(getwd(), "/", root_dir, "/datasheet/")),
-      #     type = "xxx"
-      #   ) |>
-      #   httr2::req_retry(max_tries = 3, max_seconds = 120)
-      # httr2::req_perform(img_qr, verbosity = 3)
-    } else if (is.null(man_exist)) {
-      stop("\n----\nThe manufacturer", sensor$manufacturer[1], " entered for the sensor/system,",  sensor$name[1], 
-" in the excel sheet is not listed.
-Please consider the use new_manufacturer_ui() function for create single manufacturer record in a triple store by web app form.
-Or the use of rdf_ttl_manufacturer() function for bash creation of multiple record in triple store.\n----\n")
+    } else {
+      message("\nAll manufacturers from 'new_manufacturer' sheet already exist in Fuseki.")
+    }
+  } else {
+    message("\nNo new manufacturers declared in Excel file.")
+  }
+  # --- 4. Process sensors and components ---
+  message("\n--- Processing sensors and components ---")
+  for (i in seq_len(nrow(excel_file))) {
+    sensor <- excel_file$data[[i]]
+    manufacturer_name <- sensor$manufacturer[1]
+    message("\nChecking manufacturer in Fuseki: ", manufacturer_name)
+    man_exist <- sensors_check_man_exist(manufacturer_name = manufacturer_name)
+    if (!is.null(man_exist) && nrow(man_exist) > 0) {
+      message("✓ Manufacturer found. Proceeding with SensorML generation...")
+      uuids <- sapply(seq_len(nrow(sensor)), uuid::UUIDgenerate)
+      sensors_sysTypeXML(sensorList = sensor, uuidsList = uuids)
+      if (nrow(sensor) > 1) {
+        sensors_compTypeXML(sensorList = sensor, uuidsList = uuids)
+      }
+      root_dir <- paste0("sensors_files_system_", uuids[1])
+    } else {
+      stop(
+        "\n----\nThe manufacturer '", manufacturer_name, "' (for sensor '", sensor$name[1],
+        "') is not registered in Fuseki.\nPlease upload its TTL file using sensors_new_manufacturer(), ",
+        "then re-run sensors_catalogue().\n----\n"
+      )
     }
   }
+  message("\n✅ sensors_catalogue() completed successfully.\n")
 }
 
-#' @title
+#' Generate SensorML XML description for a sensor system type
 #' @description
-#' A short description...
-#' 
-#' @param sensorList description
-#' @param uuidsList description
-#' @return description
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
-#' @importFrom httr2 request req_url_query req_method
-#' @importFrom httr2 req_headers req_retry req_perform
+#' This function creates a SensorML 2.0 XML file describing a sensor **system type**,
+#' using metadata from a structured sensor data frame.  
+#' It populates standard SensorML sections including identification, classification,
+#' characteristics, capabilities, contacts, and documentation,
+#' and stores the XML under `Sensors_files_system_<UUID>/system/`.
+#' @details
+#' The function expects a data frame containing system-level metadata (e.g. name, model,
+#' manufacturer, accuracy, resolution, physical properties, etc.) and a vector of UUIDs.
+#' It reads a base XML template (`baseSystem_insertSensor.xml`), fills the relevant fields,
+#' retrieves additional metadata (e.g., units and manufacturer URI) from SPARQL endpoints,
+#' and writes the final SensorML PhysicalSystem XML.  
+#' The generated XML conforms to OGC SensorML 2.0 and can be registered in a Sensor Observation Service (SOS).
+#' @param sensorList A `data.frame` or tibble containing metadata for the system and its components.
+#' Must include fields such as `sensor_level`, `name`, `manufacturer`, `model_name`, etc.
+#' @param uuidsList A character vector of UUIDs corresponding to each sensor and component.
+#' @return
+#' The function writes one XML file to
+#' `Sensors_files_system_<UUID>/system/ID_system_<UUID>.xml`.  
+#' It does not return any R object.
+#' @author
+#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' @importFrom xml2 read_xml xml_add_child xml_add_sibling xml_add_child xml_find_all write_xml
+#' @importFrom httr2 request req_url_query req_method req_headers req_retry req_perform
 #' @importFrom httr2 resp_check_status resp_body_json
+#' @importFrom dplyr filter
+#' @importFrom stringr str_split str_replace
+#' @importFrom tools file_ext
 #' @keywords internal
+#' @examples
+#' \dontrun{
+#' sensors_sysTypeXML(sensorList = df_system, uuidsList = uuids)
+#' }
 #'
-### function sensorML_sysTypeXML
-sensorML_sysTypeXML <- function(sensorList, uuidsList) {
-  # sensor, name, and uuid ----
+### function sensors_sysTypeXML
+sensors_sysTypeXML <- function(sensorList, uuidsList) {
+  # sensor, name, and uuid ---
   sensor_system <- sensorList %>%
     dplyr::filter(sensor_level == 'system')
   system_uuid <- uuidsList[1]
-  # folders creation ----
+  # folders creation ---
   # root folder
   root_dir <- paste0(
-    "sensorML_files_system_",
+    "Sensors_files_system_",
     system_uuid
   )
   if (!dir.exists(root_dir)) {
@@ -167,57 +220,108 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
       root_dir, "/", dir_name
     ))
   }
-  # download and save locally datasheet file ----
+  # --- Download and save datasheet file ---
   if (!is.na(sensor_system$datasheet)) {
-    if (!dir.exists(
-      paste0(
-        root_dir, "/datasheet"
-      ))) {
-      dir.create(paste0(
-        root_dir, "/datasheet"
-      ))
-    }
+    datasheet_dir <- file.path(root_dir, "datasheet")
+    if (!dir.exists(datasheet_dir)) dir.create(datasheet_dir, recursive = TRUE)
+    
+    # Sanitize the sensor short name (no spaces or special chars)
+    safe_name <- gsub("[^A-Za-z0-9_-]", "_", sensor_system$short_name)
+    
+    # Try to get file extension from URL
     doc_ext <- tools::file_ext(sensor_system$datasheet)
-    if (doc_ext == '') {
-      doc_ext <- ".html"
+    
+    if (doc_ext == "") {
+      # Try to detect MIME type from HTTP headers
+      mime_type <- tryCatch({
+        con <- curl::curl(sensor_system$datasheet)
+        info <- summary(con)
+        close(con)
+        if (!is.null(info$contenttype) && length(info$contenttype) > 0)
+          info$contenttype
+        else
+          NA_character_
+      },
+      error = function(e) NA_character_)
+      
+      # Decide extension based on MIME type
+      if (!is.na(mime_type)) {
+        if (grepl("pdf", mime_type, ignore.case = TRUE)) {
+          doc_ext <- "pdf"
+        } else if (grepl("html", mime_type, ignore.case = TRUE)) {
+          doc_ext <- "html"
+        } else if (grepl("plain|text", mime_type, ignore.case = TRUE)) {
+          doc_ext <- "txt"
+        } else {
+          doc_ext <- "dat"  # fallback generic data
+        }
+      } else {
+        doc_ext <- "pdf"  # default fallback when detection fails
+      }
     }
-    download.file(
-      sensor_system$datasheet,
-      destfile = paste0(
-        root_dir,
-        "/datasheet/",
-        sensor_system$short_name, ".",
-        doc_ext
-      ),
-      method = "libcurl"
-    )
+    
+    destfile <- file.path(datasheet_dir, paste0(safe_name, ".", doc_ext))
+    
+    tryCatch({
+      download.file(sensor_system$datasheet, destfile = destfile, method = "libcurl", quiet = TRUE)
+      message("✅ Datasheet saved as: ", destfile)
+    },
+    error = function(e) {
+      message("⚠️ Failed to download datasheet: ", e$message)
+    })
   }
-  # download and save locally image file ----
+  # --- Download and save image file ---
   if (!is.na(sensor_system$image)) {
-    if (!dir.exists(
-      paste0(
-        root_dir, "/image"
-      ))) {
-      dir.create(paste0(
-        root_dir, "/image"
-      ))
+    image_dir <- file.path(root_dir, "image")
+    if (!dir.exists(image_dir)) dir.create(image_dir, recursive = TRUE)
+    
+    # Sanitize short name
+    safe_name <- gsub("[^A-Za-z0-9_-]", "_", sensor_system$short_name)
+    
+    # Detect or infer extension
+    img_ext <- tools::file_ext(sensor_system$image)
+    if (img_ext == "") {
+      mime_type <- tryCatch({
+        con <- curl::curl(sensor_system$image)
+        info <- summary(con)
+        close(con)
+        if (!is.null(info$contenttype) && length(info$contenttype) > 0)
+          info$contenttype
+        else
+          NA_character_
+      },
+      error = function(e) NA_character_)
+      
+      if (!is.na(mime_type)) {
+        if (grepl("png", mime_type, ignore.case = TRUE)) {
+          img_ext <- "png"
+        } else if (grepl("jpeg|jpg", mime_type, ignore.case = TRUE)) {
+          img_ext <- "jpg"
+        } else if (grepl("gif", mime_type, ignore.case = TRUE)) {
+          img_ext <- "gif"
+        } else {
+          img_ext <- "jpg"
+        }
+      } else {
+        img_ext <- "jpg"
+      }
     }
-    download.file(
-      sensor_system$image,
-      destfile = paste0(
-        root_dir,
-        "/image/",
-        sensor_system$short_name, ".",
-        tools::file_ext(sensor_system$image)
-      ),
-      method = "libcurl"
-    )
+    
+    destfile <- file.path(image_dir, paste0(safe_name, ".", img_ext))
+    
+    tryCatch({
+      download.file(sensor_system$image, destfile = destfile, method = "libcurl", quiet = TRUE)
+      message("✅ Image saved as: ", destfile)
+    },
+    error = function(e) {
+      message("⚠️ Failed to download image: ", e$message)
+    })
   }
-  # name of system file ----
+  # name of system file ---
   file_name <- paste0("ID_system_", system_uuid)
-  # read xml ----
+  # read xml ---
   physicalSystemType_XML_base <- xml2::read_xml("baseSystem_insertSensor.xml")
-  # xml ----
+  # xml ---
   a <- physicalSystemType_XML_base %>%
     # swes:extension
     xml2::xml_add_child(., "swes:extension") %>%
@@ -243,12 +347,12 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
   
   # gml:identifier
   if (!is.na(sensor_system$model_name)) {
-    model_name = sub(" ", "_", sensor_system$model_name)
+    model_name = gsub(" ", "_", sensor_system$model_name)
   } else {
     model_name = "model_name"
   }
   if (!is.na(sensor_system$manufacturer)) {
-    manufacturer = sub(" ", "_", sensor_system$manufacturer)
+    manufacturer = gsub(" ", "_", sensor_system$manufacturer)
   } else {
     manufacturer = "manufacturer"
   }
@@ -257,7 +361,7 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
     "gml:identifier",
     "codeSpace" = "uniqueID",
     paste0(
-      "http://rdfdata.lteritalia.it/sensors/systemsType/",
+      "https://rdfdata.lteritalia.it/sensors/systemsType/",
       model_name, "/",
       manufacturer, "/",
       system_uuid
@@ -290,7 +394,7 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
       .,
       "sml:value",
       paste0(
-        "http://rdfdata.lteritalia.it/sensors/systemsType/",
+        "https://rdfdata.lteritalia.it/sensors/systemsType/",
         model_name, "/",
         manufacturer, "/",
         system_uuid
@@ -723,8 +827,8 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
       ?c rdf:type foaf:Organization.
       ?c foaf:name ?l.
       FILTER( STR(?l) = '",
-                             sensor_system$manufacturer,
-                             "' )
+      sensor_system$manufacturer,
+      "' )
     }
     ORDER BY ASC(?l)
     LIMIT 1")
@@ -781,12 +885,12 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
     m <- xml2::xml_add_child(c, "sml:components") %>%
       xml2::xml_add_child(., "sml:ComponentList")
     if (!is.na(sensor_system$model_name)) {
-      model_name = sub(" ", "_", sensor_system$model_name)
+      model_name = gsub(" ", "_", sensor_system$model_name)
     } else {
       model_name = "model_name"
     }
     if (!is.na(sensor_system$manufacturer)) {
-      manufacturer = sub(" ", "_", sensor_system$manufacturer)
+      manufacturer = gsub(" ", "_", sensor_system$manufacturer)
     } else {
       manufacturer = "manufacturer"
     }
@@ -797,7 +901,7 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
     )
     components_xlink_href <- paste(
       paste0(
-        "http://rdfdata.lteritalia.it/sensors/componentsType/",
+        "https://rdfdata.lteritalia.it/sensors/componentsType/",
         model_name, "/",
         manufacturer, "/"
       ),
@@ -814,52 +918,54 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
     }
     
     # swes:observableProperty
-    xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", "not_defined")
-    # In case of obsProps in sensor component(s) is fill remove the comment above
-    #   components_info <- sensorList %>%
-    #     dplyr::filter(sensor_level == 'component')
-    #   list_obsProp <- components_info$observed_property
-    #   list_obsProp_uris <- NA
-    #   for (n in 1:length(list_obsProp)) {
-    #     obsProp_query <- paste0("PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    # PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    # PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    # SELECT ?c ?l ?s
-    # WHERE {
-    #   SERVICE <http://vocab.nerc.ac.uk/sparql/sparql> {
-    #     ?c rdf:type skos:Concept .
-    #     <http://vocab.nerc.ac.uk/collection/P02/current/> skos:member ?c .
-    #     OPTIONAL {
-    #       ?c skos:prefLabel ?l .
-    #       ?c owl:sameAs ?s .
-    #     }
-    #     FILTER( REGEX (STR(?l), '",
-    #                             list_obsProp[1],
-    #                             "', 'i' ))
-    #      }
-    #     }
-    #     ORDER BY ASC(?l)
-    #     LIMIT 1")
-    #     obsProp_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
-    #       httr2::req_url_query(query = obsProp_query) %>%
-    #       httr2::req_method("POST") %>%
-    #       httr2::req_headers(Accept = "application/sparql-results+json") %>%
-    #       httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
-    #       httr2::req_perform()
-    #     httr2::resp_check_status(obsProp_qr)
-    #     obsProp_JSON <- httr2::resp_body_json(obsProp_qr)
-    #     obsProp_rdf <- obsProp_JSON$results$bindings[[1]]$c$value
-    #     list_obsProp_uris <- paste(obsProp_rdf, list_obsProp_uris, sep = ",")
-    #   }
-    #   list_obsProp_uris <- stringr::str_sub(list_obsProp_uris, end = -5)
-    #   if (!is.na(list_obsProp_uris)) {
-    #     xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", list_obsProp_uris)
-    #   } else {
-    #     xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", "not_defined")
-    #   }
+    # xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", "not_defined")
+    # In case of obsProps in sensor component(s) is fill, remove the comment after this line
+    # the line above is alternative to the code block below
+    components_info <- sensorList %>%
+      dplyr::filter(sensor_level == 'component')
+    list_obsProp <- components_info$observed_property
+    list_obsProp <- unique(list_obsProp[!is.na(list_obsProp)])
+    list_obsProp_uris <- c()
+    for (n in seq_along(list_obsProp)) {
+      label <- list_obsProp[n]
+      if (is.na(label) || label == "") next
+      obsProp_query <- sprintf("
+      PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+      SELECT ?c ?l
+      WHERE {
+        ?c a skos:Concept ;
+           skos:prefLabel ?l .
+        FILTER(STRSTARTS(STR(?c), 'http://vocab.nerc.ac.uk/collection/P02/'))
+        FILTER(REGEX(STR(?l), '%s', 'i'))
+      }
+      ORDER BY ASC(?l)
+      LIMIT 1", label)
+      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") |>
+        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") |>
+        httr2::req_method("GET") |>
+        httr2::req_headers(Accept = "application/sparql-results+json") |>
+        httr2::req_retry(max_tries = 3, max_seconds = 120) |>
+        httr2::req_perform()
+      
+      httr2::resp_check_status(obsProp_qr)
+      obsProp_JSON <- httr2::resp_body_json(obsProp_qr)
+      if (length(obsProp_JSON$results$bindings) > 0) {
+        uri <- obsProp_JSON$results$bindings[[1]]$c$value
+        list_obsProp_uris <- c(list_obsProp_uris, uri)
+      } else {
+        message("No match found for observed property: ", label)
+      }
+    }
+    if (length(list_obsProp_uris) > 0) {
+      for (uri in list_obsProp_uris) {
+        xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", uri)
+      }
+    } else {
+      xml2::xml_add_child(physicalSystemType_XML_base, "swes:observableProperty", "not_defined")
+    }
   }
   
-  # write file ----
+  # write file ---
   xml2::write_xml(
     physicalSystemType_XML_base,
     paste0(
@@ -873,28 +979,48 @@ sensorML_sysTypeXML <- function(sensorList, uuidsList) {
   )
 }
 
-#' @title
+#' Generate SensorML XML descriptions for sensor component types
 #' @description
-#' A short description...
-#' 
-#' @param sensorList description
-#' @param uuidsList description
-#' @return description
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
-#' @importFrom httr2 request req_url_query req_method
-#' @importFrom httr2 req_headers req_retry req_perform
+#' This function creates one SensorML 2.0 XML file for each **sensor component type**
+#' associated with a given sensor system.  
+#' It extracts metadata such as identifiers, classification, and measurement capabilities
+#' from the provided data frame and writes individual XML files under
+#' `Sensor_files_system_<UUID>/components/`.
+#' @details
+#' The function should be executed **after** `sensors_sysTypeXML()`.  
+#' It reads a base XML template (`baseComponent_insertSensor.xml`), fills in metadata fields,
+#' retrieves NERC vocabulary URIs and manufacturer information from SPARQL endpoints,
+#' and generates complete SensorML PhysicalComponent descriptions.
+#' @param sensorList A `data.frame` or tibble containing component-level metadata.
+#' Must include the column `sensor_level == "component"` and fields such as
+#' `name`, `manufacturer`, `sensor_type`, and capabilities (e.g. `accuracy`, `resolution`).
+#' @param uuidsList A character vector of UUIDs generated for the system and its components.
+#' @return
+#' One XML file per component is created under
+#' `Sensors_files_system_<UUID>/components/ID_component_<UUID>.xml`.  
+#' The function does not return a value.
+#' @author
+#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' @importFrom xml2 read_xml xml_add_child xml_add_sibling write_xml
+#' @importFrom httr2 request req_url_query req_method req_headers req_retry req_perform
 #' @importFrom httr2 resp_check_status resp_body_json
+#' @importFrom dplyr filter
+#' @importFrom stringr str_split str_replace
 #' @keywords internal
+#' @examples
+#' \dontrun{
+#' sensors_compTypeXML(sensorList = df_components, uuidsList = uuids)
+#' }
 #'
-### function sensorML_compTypeXML
-# execute this only after sensorML_sysTypeXML() function!
-sensorML_compTypeXML <- function(sensorList, uuidsList) {
+### function sensors_compTypeXML
+# execute this only after sensors_sysTypeXML() function!
+sensors_compTypeXML <- function(sensorList, uuidsList) {
   components_info <- sensorList %>%
     dplyr::filter(sensor_level == 'component')
   components_uuid <- uuidsList[c(2:length(uuidsList))]
-  # folder creation ----
+  # folder creation ---
   root_dir <- paste0(
-    "sensorML_files_system_",
+    "Sensors_files_system_",
     uuidsList[1]
   )
   dir_name <- "components"
@@ -910,11 +1036,11 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
   for (z in 1:nrow(components_info)) {
     component_info <- components_info[z,]
     component_uuid <- components_uuid[z]
-    # name of component file ----
+    # name of component file ---
     file_name <- paste0("ID_component_", component_uuid)
-    # read xml ----
+    # read xml ---
     physicalComponentType_XML_base <- xml2::read_xml("baseComponent_insertSensor.xml")
-    # xml ----
+    # xml ---
     physicalComponentType_XML_base %>%
       # swes:extension
       xml2::xml_add_child(., "swes:extension") %>%
@@ -940,12 +1066,12 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
     
     # gml:identifier
     if (!is.na(sensorList$model_name[1])) {
-      model_name = sub(" ", "_", sensorList$model_name[1])
+      model_name = gsub(" ", "_", sensorList$model_name[1])
     } else {
       model_name = "model_name"
     }
     if (!is.na(sensorList$manufacturer[1])) {
-      manufacturer = sub(" ", "_", sensorList$manufacturer[1])
+      manufacturer = gsub(" ", "_", sensorList$manufacturer[1])
     } else {
       manufacturer = "manufacturer"
     }
@@ -954,7 +1080,7 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
       "gml:identifier",
       "codeSpace" = "uniqueID",
       paste0(
-        "http://rdfdata.lteritalia.it/sensors/componentsType/",
+        "https://rdfdata.lteritalia.it/sensors/componentsType/",
         model_name, "/",
         manufacturer, "/",
         component_uuid
@@ -987,7 +1113,7 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
         .,
         "sml:value",
         paste0(
-          "http://rdfdata.lteritalia.it/sensors/componentsType/",
+          "https://rdfdata.lteritalia.it/sensors/componentsType/",
           model_name, "/",
           manufacturer, "/",
           component_uuid
@@ -1050,7 +1176,7 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
         !is.na(component_info$insitu)) {
       g <- xml2::xml_add_child(c, "sml:capabilities", "name" = "capabilities") %>%
         xml2::xml_add_child(., "sml:CapabilityList")
-      # for SPARQL query ----
+      # for SPARQL query ---
       ireaEndpoint <- "http://fuseki1.get-it.it/directory/query"
       uom_query_I_part <- "PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -1277,7 +1403,7 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
       c,
       "sml:attachedTo",
       "xlink:title" = paste0(
-        "http://rdfdata.lteritalia.it/sensors/systemsType/",
+        "https://rdfdata.lteritalia.it/sensors/systemsType/",
         model_name, "/",
         manufacturer, "/",
         uuidsList[1]
@@ -1285,43 +1411,41 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
     )
     
     # swes:observableProperty
-    xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", "not_defined")
-    # In case of obsProps in sensor component(s) is fill remove the comment above
-    #   if (!is.na(component_info$observed_property)) {
-    #     obsProp_query <- paste0("PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    # PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    # PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    # SELECT ?c ?l ?s
-    # WHERE {
-    #   SERVICE <http://vocab.nerc.ac.uk/sparql/sparql> {
-    #     ?c rdf:type skos:Concept .
-    #     <http://vocab.nerc.ac.uk/collection/P02/current/> skos:member ?c .
-    #     OPTIONAL {
-    #       ?c skos:prefLabel ?l .
-    #       ?c owl:sameAs ?s .
-    #     }
-    #     FILTER( REGEX( STR(?l), '",
-    #     component_info$observed_property,
-    #     "', 'i' ))
-    #      }
-    #     }
-    #     ORDER BY ASC(?l)
-    #     LIMIT 1")
-    #     obsProp_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
-    #       httr2::req_url_query(query = obsProp_query) %>%
-    #       httr2::req_method("POST") %>%
-    #       httr2::req_headers(Accept = "application/sparql-results+json") %>%
-    #       httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
-    #       httr2::req_perform()
-    #     httr2::resp_check_status(obsProp_qr)
-    #     obsProp_JSON <- httr2::resp_body_json(obsProp_qr)
-    #     obsProp_rdf <- obsProp_JSON$results$bindings[[1]]$c$value
-    #     xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", obsProp_rdf)
-    #   } else {
-    #     xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", "not_defined")
-    #   }
+    # xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", "not_defined")
+    # In case of obsProps in sensor component(s) is fill remove the comment below
+    if (!is.na(component_info$observed_property)) {
+      label <- component_info$observed_property
+      if (is.na(label) || label == "") next
+      obsProp_query <- sprintf(
+        "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?c ?l
+        WHERE {
+          ?c a skos:Concept ;
+          skos:prefLabel ?l .
+          FILTER(STRSTARTS(STR(?c), 'http://vocab.nerc.ac.uk/collection/P02/'))
+          FILTER(REGEX(STR(?l), '%s', 'i'))
+        }
+        ORDER BY ASC(?l)
+        LIMIT 1", label)
+      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") |>
+        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") |>
+        httr2::req_method("GET") |>
+        httr2::req_headers(Accept = "application/sparql-results+json") |>
+        httr2::req_retry(max_tries = 3, max_seconds = 120) |>
+        httr2::req_perform()
+      httr2::resp_check_status(obsProp_qr)
+      obsProp_JSON <- httr2::resp_body_json(obsProp_qr)
+      if (length(obsProp_JSON$results$bindings) > 0) {
+        uri <- obsProp_JSON$results$bindings[[1]]$c$value
+      } else {
+        message("No match found for observed property: ", label)
+      }
+    xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", uri)
+    } else {
+      xml2::xml_add_child(physicalComponentType_XML_base, "swes:observableProperty", "not_defined")
+    }
     
-    # write file ----
+    # write file ---
     xml2::write_xml(
       physicalComponentType_XML_base,
       paste0(
@@ -1334,4 +1458,64 @@ sensorML_compTypeXML <- function(sensorList, uuidsList) {
       )
     )
   }
+}
+
+#' Validate a generated RDF/Turtle sensor instance file
+#' @description
+#' Checks that a Turtle (.ttl) file is RDF-valid and contains the expected predicates:
+#' `rdf:type`, `dct:creator`, `dct:created`, and `dcat:contactPoint`.
+#' @author
+#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' @importFrom rdflib rdf_parse rdf_query
+#' @importFrom tibble tibble
+#' @param ttl_path Character. Path to the `.ttl` file to validate.
+#' @return
+#' A tibble summarizing the validation results. Messages are printed in the console.
+#' @keywords internal
+#'
+### function sensors_validate_ttl
+sensors_validate_ttl <- function(ttl_path) {
+  if (!requireNamespace("rdflib", quietly = TRUE)) {
+    stop("Package 'rdflib' is required. Please install it with install.packages('rdflib').")
+  }
+  if (!file.exists(ttl_path)) {
+    stop("File not found: ", ttl_path)
+  }
+  
+  g <- tryCatch(
+    rdflib::rdf_parse(ttl_path, format = "turtle"),
+    error = function(e) {
+      stop("❌ Invalid Turtle syntax: ", e$message)
+    }
+  )
+  
+  triples <- rdflib::rdf_query(g, "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }")
+  
+  required_preds <- c(
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "http://purl.org/dc/terms/creator",
+    "http://purl.org/dc/terms/created",
+    "http://www.w3.org/ns/dcat#contactPoint"
+  )
+  
+  present_preds <- unique(triples$p)
+  missing_preds <- setdiff(required_preds, present_preds)
+  
+  if (length(missing_preds) == 0) {
+    message("✅ RDF validation passed: all expected predicates are present.")
+  } else {
+    message("⚠️ RDF validation warning:")
+    message("Missing predicates:\n", paste(" -", missing_preds, collapse = "\n"))
+  }
+  
+  tibble::tibble(
+    ttl_file = basename(ttl_path),
+    total_triples = nrow(triples),
+    predicates_found = length(present_preds),
+    missing_predicates = ifelse(
+      length(missing_preds) == 0,
+      "None",
+      paste(missing_preds, collapse = ", ")
+    )
+  )
 }
