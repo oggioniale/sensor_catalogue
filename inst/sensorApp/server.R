@@ -62,6 +62,7 @@ function(input, output, session) {
     # data table output
     output$sensorTbl <- DT::renderDataTable({
         dfSensorsType <- list_systemType |>
+            dplyr::filter(!is.na(manufacturer_name) & manufacturer_name != "") |>
             dplyr::mutate(
                 rdfURL_html = paste0(
                     "<a href='",
