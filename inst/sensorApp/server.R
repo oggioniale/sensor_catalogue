@@ -96,12 +96,17 @@ function(input, output, session) {
                 .keep = "used"
             ) |>
             unique() |>
-            dplyr::select(rdfURL_html, doc, thumb_html, compURL_html, man_html) |>
-            dplyr::group_by(rdfURL_html, doc, thumb_html, man_html) |>
-            dplyr::summarize(compURL_html = stringr::str_c(compURL_html, collapse = "<br> ")) |>
+            dplyr::select(system_uri, rdfURL_html, doc, thumb_html, compURL_html, man_html) |>
+            dplyr::group_by(system_uri, rdfURL_html, doc, thumb_html, man_html) |>
+            dplyr::summarize(compURL_html = stringr::str_c(compURL_html, collapse = "<br> "),
+                             .groups = "drop") |>
             dplyr::mutate(
                 your_sensor = paste0(
-                    "<a href='http://edidemo.get-it.it/dist/SensorML20_instance.html' target = '_blank'>Provide information about your sensor instance</a>"
+                    "<a href='",
+                    system_uri,
+                    "' target='_blank' data-toggle='tooltip' title='Use this UUID to reference this system when creating your sensor instance'>",
+                    system_uri,
+                    "</a>"
                 )
             ) |>
             dplyr::select(
@@ -110,8 +115,8 @@ function(input, output, session) {
                 Image = thumb_html,
                 `System components` = compURL_html,
                 Manufacturer = man_html,
-                Instance = your_sensor
-            ) 
+                UUID = your_sensor
+            )
         DT::datatable(
             dfSensorsType,
             escape = FALSE,

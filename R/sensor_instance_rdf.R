@@ -98,5 +98,3 @@ sensors_instance_ttl <- function(
   
   invisible(out)
 }
-
-

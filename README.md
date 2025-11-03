@@ -20,7 +20,7 @@ This function generates a new RDF Turtle (`.ttl`) file containing the metadata d
 At this point, the execution of the script **stops** and the generated `.ttl` file must be **manually uploaded** to the Fuseki triple store (in the *manufacturers* dataset).  
 Once the new manufacturer record has been successfully loaded, the `sensors_catalogue()` function can be executed again to continue the processing.
 
-⚠️ **Manufacturer check:**  
+⚠️ *Manufacturer check:*
 Before generating SensorML files, the script verifies that all manufacturers listed in your Excel file exist in the Fuseki triple store.
 If any are missing, `sensors_new_manufacturer()` automatically generates RDF Turtle files describing them.  
 Upload these TTL files to the *manufacturers* dataset in Fuseki, then rerun `sensors_catalogue()` to continue the workflow.
@@ -35,14 +35,39 @@ Example workflow:
 
 ```r
 sensors_catalogue(excel_path = "./sensors.xlsx")
-sensorML_type_rdf(files_path = "sensorML_files_system_4ce8484c-b9e1-11ee-98e3-daf69f6cfb8a/")
+sensors_type_rdf(
+  files_path = "Sensors_files_system_4ce8484c-b9e1-11ee-98e3-daf69f6cfb8a/",
+  creator_name = "John",
+  creator_surname = "Doe",
+  creator_orcid = "0000-0002-1234-5678"
+)
+sensors_instance_ttl(
+  sensor_type_uri = "https://rdfdata.lteritalia.it/sensors/systemsType/33559394-24ae-42e6-9b63-cf56b8b52b30",
+  owner_name = "John",
+  owner_surname = "Doe",
+  owner_orcid = "0000-0002-1234-5678"
+)
+```
+
+## 🛰 Launch the Sensor Catalogue App
+
+The package includes an interactive **Shiny web application** for exploring sensors catalog,  
+consistent with the LTER-Italy visual identity.
+
+You can launch it locally with:
+
+```r
+# Install (if not already)
+
+library(Sensor)
+Sensor::run_sensorApp()
 ```
 
 ## Output structure
 
 For each sensor described in the sensors_template.xlsx file, a dedicated folder is created following the convention:
 
-`sensorML_files_system_<UUID>/`
+`Sensors_files_system_<UUID>/`
 
 Each folder contains:
 
@@ -63,14 +88,15 @@ This project includes two core R functions that together implement the complete 
 | Step | Function | Input | Output | Description |
 |------|-----------|--------|---------|-------------|
 | **1** | `sensors_catalogue()` | Excel file (`SensorInfo`, `new_manufacturer`) | System directories and UUIDs | Main controller: reads spreadsheet, validates manufacturers, orchestrates SensorML generation |
-| **2** | `sensorML_type_rdf()` | Path to a system folder (`sensorML_files_system_<UUID>/`) | RDF/Turtle (.ttl) files | Converts SensorML XML to RDF following SOSA/SSN and PIDINST ontologies and prepares data for Fuseki ingestion |
+| **2** | `sensors_type_rdf()` | Path to a system folder (`sensor_files_system_<UUID>/`) | RDF/Turtle (.ttl) files | Converts SensorML XML to RDF following SOSA/SSN and PIDINST ontologies and prepares data for Fuseki ingestion |
+| **3** | `sensors_instance_ttl()` | Sensor type URI, owner’s name, surname, ORCID | RDF/Turtle (.ttl) file | Creates an RDF representation of a specific sensor instance as an rdf:type of a previously defined sensor type, including provenance, creator, and contact information |
 
 ---
 
 ### `sensors_catalogue()`
 
 **Purpose:**  
-Main entry point of the workflow. It reads the Excel file, cleans and groups data, checks manufacturer presence in the Fuseki triple store, and triggers the generation of SensorML XML and TTL files.
+Main entry point of the workflow. It reads the Excel file, cleans and groups data, checks manufacturer presence in the Fuseki triple store, and triggers the generation of SensorML XML files.
 
 **Main operations:**
 - Reads the `"SensorInfo"` sheet and filters valid sensor rows.
@@ -84,9 +110,7 @@ Main entry point of the workflow. It reads the Excel file, cleans and groups dat
 **Output:**  
 Creates one folder per system containing XML, TTL, and ancillary files.
 
----
-
-### `sensorML_type_rdf()`
+### `sensors_type_rdf()`
 
 **Purpose:**  
 Transforms SensorML XML files (both system and components) into RDF/Turtle format according to the SOSA/SSN and PROV ontologies, aligning with the PIDINST and DataCite metadata model.  
@@ -102,11 +126,28 @@ It is the final step that enables the integration of sensor metadata into a trip
 **Output:**  
 Generates RDF/Turtle files describing systems and components, stored under:
 
-`sensorML_files_system_/system_components_files_ttl/`
+`Sensors_files_system_/system_components_files_ttl/`
 
-and optionally ready for loading into:
+### `sensors_instance_ttl()`
 
-`http://fuseki1.get-it.it/`
+**Purpose:**
+Creates an RDF/Turtle file describing a specific sensor instance based on an existing sensor type URI.
+This function complements sensors_type_rdf() by representing real, deployed sensors that instantiate previously defined sensor types.
+It supports provenance, creator information (via ORCID), and contact details compliant with FAIR and PIDINST practices.
+
+**Main operation:**
+- Generates a unique identifier (UUID) for each sensor instance.
+- Links the instance to its corresponding sensor type (rdf:type).
+- Adds provenance metadata (prov:Entity), creation date (dct:created), and creator (dct:creator).
+- Creates a contact point block (dcat:contactPoint) with foaf:Person information (name, surname, ORCID).
+- Exports a clean RDF/Turtle file with prefixes for SOSA, SSN, PROV, FOAF, DCAT, and DCT.
+- Automatically validates the output TTL file for syntax and presence of required predicates via sensors_validate_ttl().
+
+**Output:**
+A single RDF/Turtle file named using the pattern:
+`sensor_instance_YYYYMMDD_<UUID>.ttl`
+
+---
 
 ## Integration with RDF and Fuseki
 
@@ -115,7 +156,7 @@ This step enriches the metadata following SOSA/SSN ontologies and prepares it fo
 
 Example usage:
 
-`sensorML_type_rdf(files_path = "sensorML_files_system_<UUID>/")`
+`sensors_type_rdf(files_path = "sensorML_files_system_<UUID>/")`
 
 ## Dependencies
 

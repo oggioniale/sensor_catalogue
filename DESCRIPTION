@@ -47,4 +47,6 @@ Imports:
     tibble,
     tools,
     utils,
-    magrittr
+    magrittr,
+    shiny,
+    DT
