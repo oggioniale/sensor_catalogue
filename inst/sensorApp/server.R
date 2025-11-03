@@ -124,7 +124,7 @@ function(input, output, session) {
             caption = htmltools::tags$caption(
                 style = 'caption-side: bottom; text-align: center;',
                 'Table - ', htmltools::em(paste0(
-                    'Contains model sensors'
+                    'List of sensor type models with metadata and links.'
                 ))
             ),
             filter = 'top'
