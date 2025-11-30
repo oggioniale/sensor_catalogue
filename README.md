@@ -1,3 +1,5 @@
+[![](https://img.shields.io/badge/doi-10.5281/zenodo.17770673-blue.svg)](https://doi.org/10.5281/zenodo.17770673)
+
 # Sensors Catalogue package - SensorCat
 
 This project involves developing a solution to collect information and metadata about sensors from an Excel file, transform it into SensorML and TTL (following the SOSA and SSN ontologies using R functions), and then translate them into HTML landing pages using XSLT. The system considers **type**, **component type**, and **instance**.
