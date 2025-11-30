@@ -35,6 +35,7 @@ via \code{sensors_new_manufacturer()} and stops, prompting the user to upload th
 into the Fuseki \emph{manufacturers} dataset before resuming execution.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 This function reads an Excel file describing sensor systems and components,
 validates manufacturer information against a reference triple store (Fuseki),
 and generates corresponding SensorML 2.0 XML files for each system and its components.

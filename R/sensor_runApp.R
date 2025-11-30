@@ -1,5 +1,5 @@
 #' Launch the eLTER-IT Catalogue (Sensors view)
-#' @description
+#' @description `r lifecycle::badge("stable")`
 #' This function launches the unified eLTER-IT Shiny catalogue
 #' and automatically opens the **Sensors** tab.
 #' It serves as a convenient wrapper around

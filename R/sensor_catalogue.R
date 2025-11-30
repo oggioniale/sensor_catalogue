@@ -1,5 +1,5 @@
 #' Generate SensorML XML descriptions from a sensor catalogue Excel file
-#' @description
+#' @description `r lifecycle::badge("stable")`
 #' This function reads an Excel file describing sensor systems and components,
 #' validates manufacturer information against a reference triple store (Fuseki),
 #' and generates corresponding SensorML 2.0 XML files for each system and its components.
