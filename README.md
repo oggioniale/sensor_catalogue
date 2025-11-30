@@ -1,4 +1,4 @@
-# Sensors Catalogue package
+# Sensors Catalogue package - SensorCat
 
 This project involves developing a solution to collect information and metadata about sensors from an Excel file, transform it into SensorML and TTL (following the SOSA and SSN ontologies using R functions), and then translate them into HTML landing pages using XSLT. The system considers **type**, **component type**, and **instance**.
 
@@ -49,7 +49,7 @@ sensors_instance_ttl(
 )
 ```
 
-## 🛰 Launch the Sensor Catalogue App
+## 🛰 Launch the SensorCat App
 
 The package includes an interactive **Shiny web application** for exploring sensors catalog,  
 consistent with the LTER-Italy visual identity.
@@ -59,8 +59,8 @@ You can launch it locally with:
 ```r
 # Install (if not already)
 
-library(Sensor)
-Sensor::run_sensorApp()
+library(SensorCat)
+SensorCat::sensor_runApp()
 ```
 
 ## 🌐 Shiny Application: *Sensor App*

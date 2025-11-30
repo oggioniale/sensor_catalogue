@@ -43,11 +43,11 @@
 #' @importFrom utils write.table
 #' @importFrom rdflib rdf_parse rdf_query
 #' @importFrom dplyr bind_rows
-#' @export
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' sensors_type_rdf(
-#'   files_path = "Sensors_files_system_29347abd-69da-49e5-8a22-94a45674c775/",
+#'   files_path = "Sensors_files_system_6020a870-46c2-4b9b-a8d1-d7ebc9f6079b/",
 #'   creator_name = "John",
 #'   creator_surname = "Doe",
 #'   creator_orcid = "0000-0002-1234-5678"
@@ -136,14 +136,17 @@ sensors_type_rdf <- function(
       xml, ".//sml:identifier/sml:Term[@definition='http://vocab.nerc.ac.uk/collection/W07/current/IDEN0012/']/sml:value/text()"
     )
     if (length(manufacturerName) != 0) {
-      manufacturer <- paste0("       dcat:contactPoint      [ rdf:type       prov:Organization , foaf:Organization ;",
-                             "                                rdfs:seeAlso   <", manufacturerLink, "> ;",
-                             '                                foaf:name      """', manufacturerName, '"""] ;')
+      manufacturer <- paste0(
+        "       dcat:contactPoint [\n",
+        "         rdf:type prov:Organization , foaf:Organization ;\n",
+        "         rdfs:seeAlso <", manufacturerLink, "> ;\n",
+        '         foaf:name """', manufacturerName, '"""\n',
+        "] ;")
     } else {
       manufacturer <- ""
     }
     # following this example: https://www.w3.org/TR/vocab-ssn/#dht22-deployment
-    sensor_type <- "       rdf:type               sosa:System , ssn:System , prov:Entity ;"
+    sensor_type <- "       rdf:type sosa:System , ssn:System , prov:Entity ;"
     # observable properties
     obsPropURI <- as.character(xml2::xml_find_all(
       xml, ".//swes:observableProperty/text()"
@@ -152,34 +155,46 @@ sensors_type_rdf <- function(
     # Combine full name for display
     creator_fullname <- paste(creator_name, creator_surname)
     # --- Provenance RDF blocks ---
-    creator_block <- paste0('       dct:creator         <', creator_orcid, '> ;')
-    contact_block <- paste0(
-      '       dcat:contactPoint [ ',
-      'a foaf:Person ; ',
-      'foaf:givenName """', creator_name, '""" ; ',
-      'foaf:familyName """', creator_surname, '""" ; ',
-      'foaf:name """', creator_fullname, '""" ; ',
-      '] ;'
+    creator_block <- paste0(
+      '       dct:creator <', creator_orcid, '> ;\n',
+      '       prov:wasAttributedTo <', creator_orcid, '> ;\n',
+      '       prov:qualifiedAttribution [\n',
+      '         a prov:Attribution ;\n',
+      '         prov:agent <', creator_orcid, '> ;\n',
+      '         prov:hadRole <http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/author> ;\n',
+      '       ] ;'
     )
+    contact_block <- paste0(
+      '       dcat:contactPoint [ \n',
+      '         a foaf:Person ; \n',
+      '         foaf:givenName """', creator_name, '""" ; \n',
+      '         foaf:familyName """', creator_surname, '""" ; \n',
+      '         foaf:name """', creator_fullname, '""" ; \n',
+      '       ] ;'
+    )
+    generated_block <- '       prov:wasGeneratedBy <https://github.com/oggioniale/sensor_catalogue> ;' #TODO change it with DOI of this GitHub
     # dct:created metadata for the SYSTEM
     now_iso <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-    created_block <- paste0('       dct:created         "', now_iso, '"^^xsd:dateTime ;')
-    observedProperties <- paste0("       sosa:observes             ", obsPropList,  " .")  # observed property
+    created_block <- paste0(
+      '       dct:created "', now_iso, '"^^xsd:dateTime ;\n',
+      '       prov:generatedAtTime "', now_iso, '"^^xsd:dateTime ;'
+    )
+    observedProperties <- paste0("       sosa:observes ", obsPropList,  " .")  # observed property
     # derived from
     uuid <- stringr::str_replace(as.character(identifier), "^.+/", "")
     if (length(documentLink) != 0) {
-      derivedFrom <- paste0("       prov:wasDerivedFrom    <", documentLink,"> ;") # sml:documentation xlink:arcrole="datasheet"
+      derivedFrom <- paste0("       prov:wasDerivedFrom <", documentLink,"> ;") # sml:documentation xlink:arcrole="datasheet"
     } else {
       derivedFrom <- ""
     }
     # image
     if (length(imageLink) != 0) {
-      imageFrom <- paste0("       dcmitype:Image    <", imageLink,"> ;") # sml:documentation xlink:arcrole="datasheet"
+      imageFrom <- paste0("       dcmitype:Image <", imageLink,"> ;") # sml:documentation xlink:arcrole="datasheet"
     } else {
       imageFrom <- ""
     }
     # sameAs
-    sameAs <- paste0("       rdfs:seeAlso             <", identifier, "> ;")
+    sameAs <- paste0("       rdfs:seeAlso <", identifier, "> ;")
     # RDF_identifier
     RDF_identifier <- paste0("<https://rdfdata.lteritalia.it/sensors/systemsType/", uuid, ">") #TODO add model name and manufacturer name (e.g. https://rdfdata.lteritalia.it/sensors/systemsType/Vantage/Davis_Instruments/uuid)
     components <- ""
@@ -357,7 +372,7 @@ sensors_type_rdf <- function(
         paste0(sensor_capability, " a ssn:Property , ssn-system:SystemCapability , schema:PropertyValue ;"),
         gsub("([,&\\s])\\1+", "\\1",
              stringr::str_replace_all(string = paste0(
-               "ssn-system:hasSystemProperty ",
+               "       ssn-system:hasSystemProperty ",
                paste(accuracy_uri, measurement_range_uri, precision_uri, resolution_uri, sensitivity_uri, frequency_uri),
                " ."
              ), pattern = ">\\s+<", replacement = ">,<"),
@@ -412,15 +427,18 @@ sensors_type_rdf <- function(
           xml2::xml_find_all(comp_xml, ".//gml:identifier/text()")),
           "^.+/", "")
         RDF_comp_uri <- paste0("https://rdfdata.lteritalia.it/sensors/componentsType/", comp_id)
-        comp_type <- "       rdf:type               sosa:Sensor , ssn:System , prov:Entity ;"
-        comp_sameAs <- paste0("       rdfs:seeAlso             <", xml2::xml_find_all(comp_xml, ".//gml:identifier/text()"), "> ;")
+        comp_type <- "       rdf:type sosa:Sensor , ssn:System , prov:Entity ;"
+        comp_sameAs <- paste0("       rdfs:seeAlso <", xml2::xml_find_all(comp_xml, ".//gml:identifier/text()"), "> ;")
         comp_description <- xml2::xml_find_all(comp_xml, ".//gml:description/text()")
         comp_name <- xml2::xml_find_all(comp_xml, ".//gml:name/text()")
         comp_attached <- paste0(
-              "       sosa:isHostedBy             ", RDF_identifier, " ;")
+              "       sosa:isHostedBy ", RDF_identifier, " ;")
         # --- dct:created metadata for the COMPONENT ---
         comp_now_iso <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-        comp_created_block <- paste0('       dct:created         "', comp_now_iso, '"^^xsd:dateTime ;')
+        comp_created_block <- paste0(
+          '       dct:created "', comp_now_iso, '"^^xsd:dateTime ;\n',
+          '       prov:generatedAtTime "', comp_now_iso, '"^^xsd:dateTime ;\n'
+        )
         comp_obsProps <- as.character(xml2::xml_find_all(
           comp_xml, ".//swes:observableProperty/text()"
         ))
@@ -444,8 +462,8 @@ sensors_type_rdf <- function(
               comp_accuracy_value_min <- ""
               comp_accuracy_value_max <- ""
               comp_accuracy_schema <- c(
-                paste0("schema:value ", comp_accuracy_value, " ;"),
-                paste0("schema:unitCode <", comp_accuracy_uom_uri, "> .")
+                paste0("       schema:value ", comp_accuracy_value, " ;"),
+                paste0("       schema:unitCode <", comp_accuracy_uom_uri, "> .")
               )
             } else if (length(comp_has_quantity_range) > 0) {
               comp_accuracy_uom_uri <- xml2::xml_attr(xml2::xml_find_first(comp_accuracy_xml, ".//swe:uom"), "href")
@@ -453,9 +471,9 @@ sensors_type_rdf <- function(
               comp_accuracy_value_min <- stringr::word(xml2::xml_text(comp_accuracy_xml, ".//swe:value"), 1)
               comp_accuracy_value_max <- stringr::word(xml2::xml_text(comp_accuracy_xml, ".//swe:value"), 2)
               comp_accuracy_schema <- c(
-                paste0("schema:minValue ", comp_accuracy_value_min, " ;"),
-                paste0("schema:maxValue ", comp_accuracy_value_max, " ;"),
-                paste0("schema:unitCode <", comp_accuracy_uom_uri, "> .")
+                paste0("       schema:minValue ", comp_accuracy_value_min, " ;"),
+                paste0("       schema:maxValue ", comp_accuracy_value_max, " ;"),
+                paste0("       schema:unitCode <", comp_accuracy_uom_uri, "> .")
               )
             }
             comp_accuracy_description <- c(
@@ -474,9 +492,9 @@ sensors_type_rdf <- function(
             comp_measurement_range_value_max <- stringr::word(xml2::xml_text(comp_measurement_range_xml, ".//swe:value"), 2)
             comp_measurement_range_uri <- paste0("<", RDF_comp_uri, "#SensorMeasurementRange>")
             comp_measurement_range_schema <- c(
-              paste0("schema:minValue ", comp_measurement_range_value_min, " ;"),
-              paste0("schema:maxValue ", comp_measurement_range_value_max, " ;"),
-              paste0("schema:unitCode <", comp_measurement_range_uom_uri, "> .")
+              paste0("       schema:minValue ", comp_measurement_range_value_min, " ;"),
+              paste0("       schema:maxValue ", comp_measurement_range_value_max, " ;"),
+              paste0("       schema:unitCode <", comp_measurement_range_uom_uri, "> .")
             )
             comp_measurement_range_description <- c(
               paste0(comp_measurement_range_uri, " a ssn:Property , ssn-system:MeasurementRange , schema:PropertyValue ;"),
@@ -496,8 +514,8 @@ sensors_type_rdf <- function(
             comp_precision_value <- xml2::xml_text(comp_precision_xml, ".//swe:value")
             comp_precision_uri <- paste0("<", RDF_comp_uri, "#SensorPrecision>")
             comp_precision_schema <- c(
-              paste0("schema:value ", comp_precision_value, " ;"),
-              paste0("schema:unitCode <", comp_precision_uom_uri, "> .")
+              paste0("       schema:value ", comp_precision_value, " ;"),
+              paste0("       schema:unitCode <", comp_precision_uom_uri, "> .")
             )
             comp_precision_description <- c(
               paste0(comp_precision_uri, " a ssn:Property , ssn-system:Precision , schema:PropertyValue ;"),
@@ -521,8 +539,8 @@ sensors_type_rdf <- function(
               comp_resolution_value_min <- ""
               comp_resolution_value_max <- ""
               comp_resolution_schema <- c(
-                paste0("schema:value ", comp_resolution_value, " ;"),
-                paste0("schema:unitCode <", comp_resolution_uom_uri, "> .")
+                paste0("       schema:value ", comp_resolution_value, " ;"),
+                paste0("       schema:unitCode <", comp_resolution_uom_uri, "> .")
               )
             } else if (length(comp_has_quantity_range) > 0) {
               comp_resolution_uom_uri <- xml2::xml_attr(xml2::xml_find_first(comp_resolution_xml, ".//swe:uom"), "href")
@@ -530,9 +548,9 @@ sensors_type_rdf <- function(
               comp_resolution_value_min <- stringr::word(xml2::xml_text(comp_resolution_xml, ".//swe:value"), 1)
               comp_resolution_value_max <- stringr::word(xml2::xml_text(comp_resolution_xml, ".//swe:value"), 2)
               comp_resolution_schema <- c(
-                paste0("schema:minValue ", comp_resolution_value_min, " ;"),
-                paste0("schema:maxValue ", comp_resolution_value_max, " ;"),
-                paste0("schema:unitCode <", comp_resolution_uom_uri, "> .")
+                paste0("       schema:minValue ", comp_resolution_value_min, " ;"),
+                paste0("       schema:maxValue ", comp_resolution_value_max, " ;"),
+                paste0("       schema:unitCode <", comp_resolution_uom_uri, "> .")
               )
             }
             comp_resolution_description <- c(
@@ -550,8 +568,8 @@ sensors_type_rdf <- function(
             comp_sensitivity_value <- xml2::xml_text(comp_sensitivity_xml, ".//swe:value")
             comp_sensitivity_uri <- paste0("<", RDF_comp_uri, "#SensorSensitivity>")
             comp_sensitivity_schema <- c(
-              paste0("schema:value ", comp_sensitivity_value, " ;"),
-              paste0("schema:unitCode <", comp_sensitivity_uom_uri, "> .")
+              paste0("       schema:value ", comp_sensitivity_value, " ;"),
+              paste0("       schema:unitCode <", comp_sensitivity_uom_uri, "> .")
             )
             comp_sensitivity_description <- c(
               paste0(comp_sensitivity_uri, " a ssn:Property , ssn-system:Sensitivity , schema:PropertyValue ;"),
@@ -575,8 +593,8 @@ sensors_type_rdf <- function(
               comp_frequency_value_min <- ""
               comp_frequency_value_max <- ""
               comp_frequency_schema <- c(
-                paste0("schema:value ", comp_frequency_value, " ;"),
-                paste0("schema:unitCode <", comp_frequency_uom_uri, "> .")
+                paste0("       schema:value ", comp_frequency_value, " ;"),
+                paste0("       schema:unitCode <", comp_frequency_uom_uri, "> .")
               )
             } else if (length(has_quantity_range) > 0) {
               comp_frequency_uom_uri <- xml2::xml_attr(xml2::xml_find_first(comp_frequency_xml, ".//swe:uom"), "href")
@@ -584,9 +602,9 @@ sensors_type_rdf <- function(
               comp_frequency_value_min <- stringr::word(xml2::xml_text(comp_frequency_xml, ".//swe:value"), 1)
               comp_frequency_value_max <- stringr::word(xml2::xml_text(comp_frequency_xml, ".//swe:value"), 2)
               comp_frequency_schema <- c(
-                paste0("schema:minValue ", comp_frequency_value_min, " ;"),
-                paste0("schema:maxValue ", comp_frequency_value_max, " ;"),
-                paste0("schema:unitCode <", comp_frequency_uom_uri, "> .")
+                paste0("       schema:minValue ", comp_frequency_value_min, " ;"),
+                paste0("       schema:maxValue ", comp_frequency_value_max, " ;"),
+                paste0("       schema:unitCode <", comp_frequency_uom_uri, "> .")
               )
             }
             comp_frequency_description <- c(
@@ -629,17 +647,19 @@ sensors_type_rdf <- function(
           paste0("<", RDF_comp_uri, ">"),
           comp_type,
           comp_sameAs, # gml:identifier
-          paste0('       rdfs:comment           """', comp_description, '""" @en ;'), # gml:description
-          paste0('       rdfs:label             """', comp_name, '""" @en ;'), # gml:name
+          paste0('       rdfs:comment """', comp_description, '""" @en ;'), # gml:description
+          paste0('       rdfs:label """', comp_name, '""" @en ;'), # gml:name
           comp_attached,
           comp_created_block,
           creator_block,
           contact_block,
+          generated_block,
           paste0(
-            "       sosa:observes             <", comp_obsProps, "> ;"),
+            "       sosa:observes <", comp_obsProps, "> ;"),
           comp_sensor_capability_01,
           "",
-          comp_sensor_capability_02
+          comp_sensor_capability_02,
+          ""
         )
         write(component, file = componentTypeTTL)
         # close file
@@ -655,7 +675,7 @@ sensors_type_rdf <- function(
       )
       components_uuid <- stringr::str_replace(as.character(components_uri), "^.+/", "")
       components <- paste0(
-        "       sosa:hasSubSystem             ",
+        "       sosa:hasSubSystem ",
         paste(
           "<",
           paste0(
@@ -692,8 +712,8 @@ sensors_type_rdf <- function(
       RDF_identifier,
       sensor_type,
       sameAs, # gml:identifier
-      paste0('       rdfs:comment           """', description, '""" @en ;'), # gml:description
-      paste0('       rdfs:label             """', name, '""" @en ;'), # gml:name
+      paste0('       rdfs:comment """', description, '""" @en ;'), # gml:description
+      paste0('       rdfs:label """', name, '""" @en ;'), # gml:name
       manufacturer,
       components,
       attached,
@@ -703,6 +723,7 @@ sensors_type_rdf <- function(
       created_block,
       creator_block,
       contact_block,
+      generated_block,
       observedProperties,
       "",
       sensor_capability_02,

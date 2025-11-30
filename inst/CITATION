@@ -1,0 +1,14 @@
+citHeader("To cite the 'SensorCat' package in publications use:")
+
+year <- format(Sys.Date(), "%Y")
+
+citEntry(entry = "Misc",
+         title = "SensorCat",
+         author = personList(as.person("Alessandro Oggioni")),
+         year = year,
+         note = paste("R package version", "v0.1.0"),
+         textVersion =
+           paste("Alessandro Oggioni.",
+                 " (2025). SensorCat (v0.1.0).",
+                 "Zenodo. https://doi.org/10.5281/zenodo.xxxxxxxx")
+)

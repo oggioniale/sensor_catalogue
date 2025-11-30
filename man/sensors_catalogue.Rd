@@ -4,11 +4,22 @@
 \alias{sensors_catalogue}
 \title{Generate SensorML XML descriptions from a sensor catalogue Excel file}
 \usage{
-sensors_catalogue(excel_path = NULL)
+sensors_catalogue(
+  excel_path = NULL,
+  creator_name = NULL,
+  creator_surname = NULL,
+  creator_orcid = NULL
+)
 }
 \arguments{
 \item{excel_path}{Character string. Path to the Excel file containing the sensor catalogue.
 Must include the sheet \code{"SensorInfo"}, and \code{"new_manufacturer"}.}
+
+\item{creator_name}{Character. First name of the sensor owner.}
+
+\item{creator_surname}{Character. Last name of the sensor owner.}
+
+\item{creator_orcid}{Character. ORCID of the sensor owner (e.g. \code{"0000-0002-1825-0097"}).}
 }
 \value{
 The function does not return an object in R.
@@ -61,7 +72,10 @@ the \code{sensors_type_rdf()} function or uploaded to a Sensor Observation Servi
 \examples{
 \dontrun{
 sensors_catalogue(
-  excel_path = "sensors_list/CristianoFugazza/sensors_CristianoFugazza.xlsx"
+  excel_path = "sensors_list/CristianoFugazza/sensors_CristianoFugazza.xlsx",
+  creator_name = "John",
+  creator_surname = "Doe",
+  creator_orcid = "0000-0002-1234-5678"
 )
 }
 

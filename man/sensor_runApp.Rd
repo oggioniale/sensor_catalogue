@@ -2,24 +2,33 @@
 % Please edit documentation in R/sensor_runApp.R
 \name{sensor_runApp}
 \alias{sensor_runApp}
-\title{Launch the Sensor Catalogue Shiny Application}
+\title{Launch the eLTER-IT Catalogue (Sensors view)}
 \usage{
-sensor_runApp()
+sensor_runApp(...)
 }
 \value{
-The function launches the Shiny application and returns no value.
+No return value.
+The function launches the Shiny application.
 }
 \description{
-This function starts a local Shiny web application
-for visualising sensor data in an interactive catalogue format.
-The app includes a fixed header and footer consistent
-with the eLTER/LTER-Italy design style.
+This function launches the unified eLTER-IT Shiny catalogue
+and automatically opens the \strong{Sensors} tab.
+It serves as a convenient wrapper around
+\code{elter_catalogues_app()}, ensuring that users accessing
+the Sensor Catalogue are directed immediately to the
+sensor-type metadata section.
 }
 \details{
-The application provides an interactive DataTable interface
-to browse and explore sensor metadata.
-The header and footer remain fixed, while the main content
-(sensor table) is scrollable.
+The eLTER-IT catalogue is a multi-view Shiny application
+combining both:
+\itemize{
+\item the \strong{Samples Catalogue}, and
+\item the \strong{Sensor Type Catalogue}.
+}
+Calling \code{sensor_runApp()} opens the application with the
+\strong{"Sensors type"} tab preselected.
+Internally, this function simply calls
+\code{Specimen::elter_catalogues_app(default_tab = "sensors")}.
 }
 \examples{
 if (interactive()) {
@@ -27,5 +36,6 @@ if (interactive()) {
 }
 }
 \author{
-Alessandro Oggioni, PhD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, PhD (2023–2025)
+\email{oggioni.a@cnr.it}
 }

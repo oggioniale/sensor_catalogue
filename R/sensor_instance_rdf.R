@@ -29,7 +29,7 @@
 #'   owner_orcid = "0000-0002-1234-5678"
 #' )
 #' }
-#' @export
+#' @keywords internal
 #'
 ### function sensors_instance_ttl
 sensors_instance_ttl <- function(
@@ -72,11 +72,17 @@ sensors_instance_ttl <- function(
     paste0("    rdfs:comment \"This sensor instance derives from the type ", esc(sensor_type_uri), ".\"@en ;"),
     paste0("    dct:creator <", owner_orcid, "> ;"),
     paste0("    dct:created \"", now_iso, "\"^^xsd:dateTime ;"),
+    paste0("    prov:generatedAtTime \"", now_iso, "\"^^xsd:dateTime ;"),
     "    dcat:contactPoint [",
     "        a foaf:Person ;",
     paste0("        foaf:givenName \"", esc(owner_name), "\" ;"),
     paste0("        foaf:familyName \"", esc(owner_surname), "\" ;"),
     paste0("        foaf:account <", owner_orcid, ">"),
+    "    ] ;",
+    "    prov:qualifiedAttribution [",
+    "        a prov:Attribution ;",
+    paste0("        prov:agent <", owner_orcid, "> ;"),
+    "        prov:hadRole <http://inspire.ec.europa.eu/metadata-codelist/ResponsiblePartyRole/owner>",
     "    ] .",
     ""
   )

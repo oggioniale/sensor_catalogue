@@ -59,7 +59,7 @@ The generated RDF files can be uploaded to a Fuseki triple store
 \examples{
 \dontrun{
 sensors_type_rdf(
-  files_path = "Sensors_files_system_29347abd-69da-49e5-8a22-94a45674c775/",
+  files_path = "Sensors_files_system_6020a870-46c2-4b9b-a8d1-d7ebc9f6079b/",
   creator_name = "John",
   creator_surname = "Doe",
   creator_orcid = "0000-0002-1234-5678"
@@ -70,3 +70,4 @@ sensors_type_rdf(
 \author{
 Alessandro Oggioni, PhD (2023) \email{oggioni.a@cnr.it}
 }
+\keyword{internal}

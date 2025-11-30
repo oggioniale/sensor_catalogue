@@ -1,4 +1,4 @@
-Package: Sensor
+Package: SensorCat
 Type: Package
 Title: Tools for Generating and Validating Sensor Metadata in SensorML and RDF Formats
 Version: 0.1.0
@@ -9,7 +9,7 @@ Authors@R:
            email = "oggioni.a@cnr.it",
            comment = c(ORCID = "0000-0002-7997-219X"))
 Description: 
- Provides a suite of tools for creating, transforming, and validating metadata 
+ Provides a suite of tools for creating and validating metadata 
  about sensors, their components, and their manufacturers. The workflow starts 
  from tabular data (e.g., Excel) describing sensors and produces SensorML files 
  for both sensor systems and components, RDF/Turtle files for sensor types and 

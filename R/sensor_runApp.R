@@ -1,43 +1,36 @@
-#' Launch the Sensor Catalogue Shiny Application
-#'
-#' This function starts a local Shiny web application
-#' for visualising sensor data in an interactive catalogue format.
-#' The app includes a fixed header and footer consistent
-#' with the eLTER/LTER-Italy design style.
-#'
+#' Launch the eLTER-IT Catalogue (Sensors view)
+#' @description
+#' This function launches the unified eLTER-IT Shiny catalogue
+#' and automatically opens the **Sensors** tab.
+#' It serves as a convenient wrapper around
+#' \code{elter_catalogues_app()}, ensuring that users accessing
+#' the Sensor Catalogue are directed immediately to the
+#' sensor-type metadata section.
 #' @details
-#' The application provides an interactive DataTable interface
-#' to browse and explore sensor metadata.  
-#' The header and footer remain fixed, while the main content
-#' (sensor table) is scrollable.
+#' The eLTER-IT catalogue is a multi-view Shiny application
+#' combining both:
+#' \itemize{
+#'   \item the **Samples Catalogue**, and
+#'   \item the **Sensor Type Catalogue**.
+#' }
+#' Calling \code{sensor_runApp()} opens the application with the
+#' \strong{"Sensors type"} tab preselected.
+#' Internally, this function simply calls
+#' \code{Specimen::elter_catalogues_app(default_tab = "sensors")}.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023–2025)  
+#' \email{oggioni.a@@cnr.it}
+#' @return
+#' No return value.  
+#' The function launches the Shiny application.
 #' @examples
 #' if (interactive()) {
 #'   sensor_runApp()
 #' }
-#' @return
-#' The function launches the Shiny application and returns no value.
 #' @export
 #' 
 ### function sensor_runApp
-sensor_runApp <- function() {
-  app_dir <- system.file("sensorApp", package = "Sensor")
-  if (app_dir == "") {
-    stop("The Shiny app directory could not be found. Try reinstalling the package.",
-         call. = FALSE)
-  }
-  tryCatch(
-    {
-      shiny::runApp(app_dir, display.mode = "normal")
-    },
-    interrupt = function(e) {
-      message("\n🟢 Shiny app stopped by user.")
-      invisible(NULL)
-    },
-    error = function(e) {
-      message("\n❌ Unexpected error: ", e$message)
-      invisible(NULL)
-    }
-  )
+sensor_runApp <- function(...) {
+  # lancia l’app unica con tab di default "sensors"
+  SpecimenCat::elter_catalogues_app(default_tab = "sensors")
 }

@@ -65,15 +65,15 @@ sensors_check_man_exist <- function(
   if (verbose) message("Sending query for manufacturer: ", manufacturer_name)
   
   # HTTP request
-  resp <- httr2::request(endpoint) |>
-    httr2::req_url_query(query = sparql_query) |>
-    httr2::req_method("POST") |>
-    httr2::req_headers(Accept = "application/sparql-results+json") |>
-    httr2::req_retry(max_tries = 3, max_seconds = 120) |>
+  resp <- httr2::request(endpoint) %>%
+    httr2::req_url_query(query = sparql_query) %>%
+    httr2::req_method("POST") %>%
+    httr2::req_headers(Accept = "application/sparql-results+json") %>%
+    httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
     httr2::req_error(body = function(r) {
       b <- httr2::resp_body_json(r, simplifyVector = TRUE)
       paste0("SPARQL endpoint error: ", b$error$message %||% "<unknown>")
-    }) |>
+    }) %>%
     httr2::req_perform()
   
   httr2::resp_check_status(resp)

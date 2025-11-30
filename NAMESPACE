@@ -2,8 +2,7 @@
 
 export(sensor_runApp)
 export(sensors_catalogue)
-export(sensors_instance_ttl)
-export(sensors_type_rdf)
+importFrom(dplyr,"%>%")
 importFrom(dplyr,bind_rows)
 importFrom(dplyr,filter)
 importFrom(dplyr,group_by)

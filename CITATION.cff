@@ -4,9 +4,9 @@
 # --------------------------------------------
  
 cff-version: 1.2.0
-message: 'To cite package "Sensor" in publications use:'
+message: 'To cite package "SensorCat" in publications use:'
 type: software
-title: 'Sensor: Tools for Generating and Validating Sensor Metadata in SensorML and
+title: 'SensorCat: Tools for Generating and Validating Sensor Metadata in SensorML and
   RDF Formats'
 version: 0.1.0
 abstract: Provides a suite of tools for creating, transforming, and validating metadata

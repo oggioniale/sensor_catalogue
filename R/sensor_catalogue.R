@@ -35,6 +35,9 @@
 #'
 #' @param excel_path Character string. Path to the Excel file containing the sensor catalogue.
 #' Must include the sheet `"SensorInfo"`, and `"new_manufacturer"`.
+#' @param creator_name Character. First name of the sensor owner.
+#' @param creator_surname Character. Last name of the sensor owner.
+#' @param creator_orcid Character. ORCID of the sensor owner (e.g. `"0000-0002-1825-0097"`).
 #'
 #' @return
 #' The function does not return an object in R.
@@ -56,106 +59,194 @@
 #' @author
 #' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
 #' @importFrom readxl read_excel
-#' @importFrom dplyr filter group_by
+#' @importFrom dplyr filter group_by %>%
 #' @importFrom tidyr nest
 #' @importFrom uuid UUIDgenerate
 #' @export
 #' @examples
 #' \dontrun{
 #' sensors_catalogue(
-#'   excel_path = "sensors_list/CristianoFugazza/sensors_CristianoFugazza.xlsx"
+#'   excel_path = "sensors_list/CristianoFugazza/sensors_CristianoFugazza.xlsx",
+#'   creator_name = "John",
+#'   creator_surname = "Doe",
+#'   creator_orcid = "0000-0002-1234-5678"
 #' )
 #' }
 #'
 ### function sensors_catalogue
-sensors_catalogue <- function(excel_path = NULL) {
-  # --- 1. Load Excel file ---
-  if (is.null(excel_path) || !file.exists(excel_path)) {
-    stop("Excel file not found. Please provide a valid path.")
+sensors_catalogue <- function(
+    excel_path = NULL,
+    creator_name = NULL,
+    creator_surname = NULL,
+    creator_orcid = NULL
+) {
+  
+  # ------------------------------------------------------------
+  # Helper logging functions
+  # ------------------------------------------------------------
+  log_section <- function(title) {
+    message("\n\n🔷======================================================")
+    message("🔷  ", title)
+    message("🔷======================================================")
   }
-  message("\n--- Reading 'SensorInfo' sheet ---")
+  log_info  <- function(...) message("ℹ️  ", ...)
+  log_ok    <- function(...) message("✅ ", ...)
+  log_warn  <- function(...) message("⚠️  ", ...)
+  log_error <- function(...) message("❌ ", ...)
+  
+  # ------------------------------------------------------------
+  # 1. Load Excel file
+  # ------------------------------------------------------------
+  log_section("Loading Excel file")
+  
+  if (is.null(excel_path) || !file.exists(excel_path)) {
+    stop("❌ Excel file not found. Provide a valid path.")
+  }
+  
+  log_info("Reading 'SensorInfo' sheet…")
   excel_file <- readxl::read_excel(excel_path, sheet = "SensorInfo")
-  # Remove example/unit/type rows and empty lines
+  
+  # Remove first 10 rows (example/unit/type) and empty lines
   excel_file <- excel_file[-c(1:10), ]
   excel_file <- dplyr::filter(excel_file, rowSums(is.na(excel_file)) != ncol(excel_file))
-  # Group by sensor name
-  excel_file <- excel_file |>
-    dplyr::group_by(sensor) |>
+  
+  # Group rows by sensor name
+  excel_file <- excel_file %>%
+    dplyr::group_by(sensor) %>%
     tidyr::nest()
-  # --- 2. Check new manufacturers ---
-  message("\n--- Checking 'new_manufacturer' sheet ---")
-  # Read manufacturer sheet if available
+  
+  log_ok("SensorInfo sheet loaded and cleaned.")
+  
+  # ------------------------------------------------------------
+  # 2. Check NEW manufacturers
+  # ------------------------------------------------------------
+  log_section("Checking 'new_manufacturer' sheet")
+  
   if ("new_manufacturer" %in% readxl::excel_sheets(excel_path)) {
+    
     manufacturer_list <- readxl::read_excel(excel_path, sheet = "new_manufacturer")
-    manufacturer_list <- manufacturer_list[-c(1), ]  # remove header example line
+    manufacturer_list <- manufacturer_list[-1, ]  # remove example header
+    
+    log_info("Found ", nrow(manufacturer_list), " rows in new_manufacturer.")
   } else {
+    log_warn("No 'new_manufacturer' sheet found.")
     manufacturer_list <- data.frame()
   }
-  # --- 3. Verify manufacturer existence in Fuseki ---
+  
+  # ------------------------------------------------------------
+  # 3. Verify manufacturer existence in Fuseki
+  # ------------------------------------------------------------
   if (nrow(manufacturer_list) > 0) {
-    message("\n--- Verifying manufacturers in Fuseki ---")
-    # track which are missing and which exist
-    missing_manufacturers <- c()
-    existing_manufacturers <- c()
+    
+    log_section("Verifying manufacturers in Fuseki")
+    
+    missing <- c()
+    existing <- c()
+    
     for (i in seq_len(nrow(manufacturer_list))) {
+      
       man_name <- manufacturer_list$name[i]
       if (is.na(man_name) || man_name == "") next
-      man_exist <- sensors_check_man_exist(manufacturer_name = man_name)
-      if (!is.null(man_exist) && nrow(man_exist) > 0) {
-        message("✓ Manufacturer already exists in Fuseki: ", man_name)
-        existing_manufacturers <- c(existing_manufacturers, man_name)
+      
+      response <- sensors_check_man_exist(manufacturer_name = man_name)
+      
+      if (!is.null(response) && nrow(response) > 0) {
+        log_ok("Manufacturer exists: ", man_name)
+        existing <- c(existing, man_name)
       } else {
-        message("⚠️ Manufacturer not found in Fuseki: ", man_name)
-        missing_manufacturers <- c(missing_manufacturers, man_name)
+        log_warn("Manufacturer missing in Fuseki: ", man_name)
+        missing <- c(missing, man_name)
       }
     }
-    # if missing manufacturers found, filter list and generate TTL
-    if (length(missing_manufacturers) > 0) {
-      message("\n--- Generating RDF TTL only for new (missing) manufacturers ---")
-      # Filter the Excel "new_manufacturer" sheet to keep only the missing ones
-      manu_to_create <- manufacturer_list |>
-        dplyr::filter(name %in% missing_manufacturers)
-      # Run sensors_new_manufacturer() only for this filtered set
-      sensors_new_manufacturer(man_table = manu_to_create)
+    
+    if (length(missing) > 0) {
+      
+      log_section("Creating TTL for missing manufacturers")
+      
+      to_create <- manufacturer_list %>%
+        dplyr::filter(name %in% missing)
+      
+      sensors_new_manufacturer(man_table = to_create)
+      
       stop(
-        "\n----\n",
-        "The following manufacturers were not found in Fuseki:\n",
-        paste0(" - ", missing_manufacturers, collapse = "\n"),
-        "\n\nA new RDF TTL file has been generated (only for missing manufacturers) ",
-        "via sensors_new_manufacturer().\nPlease upload it to the 'manufacturers' dataset in Fuseki, ",
-        "then re-run sensors_catalogue().\n",
-        "Execution stopped.\n----\n"
-      )
-    } else {
-      message("\nAll manufacturers from 'new_manufacturer' sheet already exist in Fuseki.")
-    }
-  } else {
-    message("\nNo new manufacturers declared in Excel file.")
-  }
-  # --- 4. Process sensors and components ---
-  message("\n--- Processing sensors and components ---")
-  for (i in seq_len(nrow(excel_file))) {
-    sensor <- excel_file$data[[i]]
-    manufacturer_name <- sensor$manufacturer[1]
-    message("\nChecking manufacturer in Fuseki: ", manufacturer_name)
-    man_exist <- sensors_check_man_exist(manufacturer_name = manufacturer_name)
-    if (!is.null(man_exist) && nrow(man_exist) > 0) {
-      message("✓ Manufacturer found. Proceeding with SensorML generation...")
-      uuids <- sapply(seq_len(nrow(sensor)), uuid::UUIDgenerate)
-      sensors_sysTypeXML(sensorList = sensor, uuidsList = uuids)
-      if (nrow(sensor) > 1) {
-        sensors_compTypeXML(sensorList = sensor, uuidsList = uuids)
-      }
-      root_dir <- paste0("sensors_files_system_", uuids[1])
-    } else {
-      stop(
-        "\n----\nThe manufacturer '", manufacturer_name, "' (for sensor '", sensor$name[1],
-        "') is not registered in Fuseki.\nPlease upload its TTL file using sensors_new_manufacturer(), ",
-        "then re-run sensors_catalogue().\n----\n"
+        "\n❌ Missing manufacturers:\n",
+        paste0(" - ", missing, collapse = "\n"),
+        "\n\nA TTL file has been generated. Upload it to Fuseki and run sensors_catalogue() again.\n"
       )
     }
+    
+    log_ok("All manufacturers already exist in Fuseki.")
   }
-  message("\n✅ sensors_catalogue() completed successfully.\n")
+  
+  # ------------------------------------------------------------
+  # 4. Process sensors and components
+  # ------------------------------------------------------------
+  log_section("Generating SensorML for sensors and components")
+  
+  step4_ok <- TRUE
+  n_sensors <- nrow(excel_file)
+  pb <- utils::txtProgressBar(min = 0, max = n_sensors, style = 3)
+  
+  for (i in seq_len(n_sensors)) {
+    
+    sensor_df <- excel_file$data[[i]]
+    manufacturer_name <- sensor_df$manufacturer[1]
+    
+    log_info("Checking manufacturer for sensor #", i, ": ", manufacturer_name)
+    response <- sensors_check_man_exist(manufacturer_name)
+    
+    if (!is.null(response) && nrow(response) > 0) {
+      
+      log_ok("Manufacturer OK → generating SensorML…")
+      
+      tryCatch({
+        
+        uuids <- sapply(seq_len(nrow(sensor_df)), uuid::UUIDgenerate)
+        
+        sensors_sysTypeXML(sensorList = sensor_df, uuidsList = uuids)
+        
+        if (nrow(sensor_df) > 1)
+          sensors_compTypeXML(sensorList = sensor_df, uuidsList = uuids)
+        
+        root_dir <- paste0("sensors_files_system_", uuids[1])
+        
+      }, error = function(e) {
+        step4_ok <<- FALSE
+        log_error("SensorML generation failed for sensor #", i, ": ", e$message)
+      })
+      
+    } else {
+      stop(
+        "\n❌ Missing manufacturer '", manufacturer_name,
+        "' for sensor '", sensor_df$name[1], "'. Upload TTL and rerun.\n"
+      )
+    }
+    
+    utils::setTxtProgressBar(pb, i)
+  }
+  
+  close(pb)
+  
+  if (!step4_ok) {
+    stop("\n❌ SensorML generation failed. RDF step aborted.\n")
+  }
+  
+  log_ok("SensorML generation completed successfully.")
+  
+  # ------------------------------------------------------------
+  # 5. Generate RDF (if step4 was successful)
+  # ------------------------------------------------------------
+  log_section("Generating RDF for sensors and components")
+  
+  sensors_type_rdf(
+    files_path = paste0(root_dir, "/"),
+    creator_name = creator_name,
+    creator_surname = creator_surname,
+    creator_orcid = creator_orcid
+  )
+  
+  log_ok("RDF files created successfully.")
+  log_ok("sensors_catalogue() finished successfully.")
 }
 
 #' Generate SensorML XML description for a sensor system type
@@ -190,7 +281,7 @@ sensors_catalogue <- function(excel_path = NULL) {
 #' @keywords internal
 #' @examples
 #' \dontrun{
-#' sensors_sysTypeXML(sensorList = df_system, uuidsList = uuids)
+#'   sensors_sysTypeXML(sensorList = df_system, uuidsList = uuids)
 #' }
 #'
 ### function sensors_sysTypeXML
@@ -259,8 +350,8 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
         doc_ext <- "pdf"  # default fallback when detection fails
       }
     }
-    
-    destfile <- file.path(datasheet_dir, paste0(safe_name, ".", doc_ext))
+    docFileName <- paste0(safe_name, ".", doc_ext)
+    destfile <- file.path(datasheet_dir, docFileName)
     
     tryCatch({
       download.file(sensor_system$datasheet, destfile = destfile, method = "libcurl", quiet = TRUE)
@@ -306,8 +397,8 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
         img_ext <- "jpg"
       }
     }
-    
-    destfile <- file.path(image_dir, paste0(safe_name, ".", img_ext))
+    imageFileName <- paste0(safe_name, ".", img_ext)
+    destfile <- file.path(image_dir, imageFileName)
     
     tryCatch({
       download.file(sensor_system$image, destfile = destfile, method = "libcurl", quiet = TRUE)
@@ -854,15 +945,19 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
   
   # sml:documentation
   if (!is.na(sensor_system$datasheet)) {
+    docURL <- paste0(
+      "https://rdfdata.lteritalia.it/objects/types/Sensors_file_system_", #TODO change with the path were the XMLs are stored
+      system_uuid,
+      "/datasheet/",
+      docFileName
+    )
     i <- xml2::xml_add_child(c, "sml:documentation", "xlink:arcrole" = "datasheet") %>%
       xml2::xml_add_child(., "sml:DocumentList")
     # sml:documentation - document
-    # TODO when the image is uploaded to a website substitute the sensor_system$datasheet with the path of datasheet
-    # using also the uuid of sensor type
     xml2::xml_add_child(i, "sml:document") %>%
       xml2::xml_add_child(., "gmd:CI_OnlineResource") %>%
       xml2::xml_add_child(., "gmd:linkage") %>%
-      xml2::xml_add_child(., "gmd:URL", sensor_system$datasheet)
+      xml2::xml_add_child(., "gmd:URL", docURL)
   }
   if (!is.na(sensor_system$image)) {
     l <- xml2::xml_add_child(c, "sml:documentation", "xlink:arcrole" = "image") %>%
@@ -871,9 +966,13 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
       xml2::xml_add_child(., "gmd:CI_OnlineResource") %>%
       xml2::xml_add_child(., "gmd:linkage")
     # sml:documentation - image
-    # TODO when the image is uploaded to a website substitute the sensor_system$image with the path of image
-    # using also the uuid of sensor type
-    xml2::xml_add_child(l1, "gmd:URL", sensor_system$image)
+    imageURL <- paste0(
+      "https://rdfdata.lteritalia.it/objects/types/Sensors_file_system_", #TODO change with the path were the XMLs are stored
+      system_uuid,
+      "/image/",
+      imageFileName
+    )
+    xml2::xml_add_child(l1, "gmd:URL", imageURL)
     xml2::xml_add_sibling(l1, "gmd:name") %>%
       xml2::xml_add_child(., "gco:CharacterString", "Image")
   }
@@ -940,11 +1039,11 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
       }
       ORDER BY ASC(?l)
       LIMIT 1", label)
-      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") |>
-        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") |>
-        httr2::req_method("GET") |>
-        httr2::req_headers(Accept = "application/sparql-results+json") |>
-        httr2::req_retry(max_tries = 3, max_seconds = 120) |>
+      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") %>%
+        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") %>%
+        httr2::req_method("GET") %>%
+        httr2::req_headers(Accept = "application/sparql-results+json") %>%
+        httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
         httr2::req_perform()
       
       httr2::resp_check_status(obsProp_qr)
@@ -1390,12 +1489,12 @@ sensors_compTypeXML <- function(sensorList, uuidsList) {
     
     # sml:attachedTo
     if (!is.na(sensorList$model_name[1])) {
-      model_name = sub(" ", "_", sensorList$model_name[1])
+      model_name = gsub(" ", "_", sensorList$model_name[1])
     } else {
       model_name = "model_name"
     }
     if (!is.na(sensorList$manufacturer[1])) {
-      manufacturer = sub(" ", "_", sensorList$manufacturer[1])
+      manufacturer = gsub(" ", "_", sensorList$manufacturer[1])
     } else {
       manufacturer = "manufacturer"
     }
@@ -1427,11 +1526,11 @@ sensors_compTypeXML <- function(sensorList, uuidsList) {
         }
         ORDER BY ASC(?l)
         LIMIT 1", label)
-      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") |>
-        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") |>
-        httr2::req_method("GET") |>
-        httr2::req_headers(Accept = "application/sparql-results+json") |>
-        httr2::req_retry(max_tries = 3, max_seconds = 120) |>
+      obsProp_qr <- httr2::request("http://vocab.nerc.ac.uk/sparql/sparql") %>%
+        httr2::req_url_query(query = obsProp_query, format = "application/sparql-results+json") %>%
+        httr2::req_method("GET") %>%
+        httr2::req_headers(Accept = "application/sparql-results+json") %>%
+        httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
         httr2::req_perform()
       httr2::resp_check_status(obsProp_qr)
       obsProp_JSON <- httr2::resp_body_json(obsProp_qr)

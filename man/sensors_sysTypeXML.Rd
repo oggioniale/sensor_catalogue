@@ -34,7 +34,7 @@ The generated XML conforms to OGC SensorML 2.0 and can be registered in a Sensor
 }
 \examples{
 \dontrun{
-sensors_sysTypeXML(sensorList = df_system, uuidsList = uuids)
+  sensors_sysTypeXML(sensorList = df_system, uuidsList = uuids)
 }
 
 }
