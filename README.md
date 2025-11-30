@@ -63,6 +63,9 @@ library(SensorCat)
 SensorCat::sensor_runApp()
 ```
 
+<img width="1431" height="727" alt="image" src="https://github.com/user-attachments/assets/2fcc2c70-c43d-4793-ba08-45f166c8854f" />
+
+
 ## 🌐 Shiny Application: *Sensor App*
 
 The [**Sensor App**](https://oggioniale.shinyapps.io/sensorapp/) is an interactive **Shiny interface** that provides access to and visualization of **sensor metadata** stored as RDF/Turtle (`.ttl`) files in an **Apache Jena Fuseki** triple store.  
