@@ -1,0 +1,19 @@
+title: SensorCat
+url: https://github.com/oggioniale/sensor_catalogue
+template:
+  bootstrap: 5
+  params:
+    mathjax: true
+  includes:
+    in_header: |
+      <script defer data-domain="" src="https://plausible.io/js/plausible.js"></script>
+
+reference:
+  - title: All functions
+    contents:
+    - sensors_catalogue
+    - sensor_runApp
+navbar:
+  structure:
+    left: [reference]
+    right: [github]
