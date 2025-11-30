@@ -10,5 +10,5 @@ citEntry(entry = "Misc",
          textVersion =
            paste("Alessandro Oggioni.",
                  " (2025). SensorCat (v0.1.0).",
-                 "Zenodo. https://doi.org/10.5281/zenodo.xxxxxxxx")
+                 "Zenodo. https://doi.org/10.5281/zenodo.17770673")
 )
