@@ -38,6 +38,6 @@ sensors_check_man_exist(manufacturer_name = "ADM Elektronik")
 }
 }
 \author{
-Alessandro Oggioni, PhD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 }
 \keyword{internal}

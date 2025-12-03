@@ -15,7 +15,7 @@
 #' to match manufacturer names. The returned list is parsed from JSON and converted
 #' into a tibble.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom httr2 request req_url_query req_method
 #' @importFrom httr2 req_headers req_retry req_perform
 #' @importFrom httr2 resp_check_status resp_body_json
@@ -112,7 +112,7 @@ sensors_check_man_exist <- function(
 #' @return
 #' Creates and saves RDF/Turtle and XML files describing each manufacturer.
 #' No object is returned.
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
+#' @author Alessandro Oggioni, phD (2023) \email{alessandro.oggioni@cnr.it}
 #' @keywords internal
 #' @examples
 #' # Example of a manufacturer entry
@@ -171,7 +171,7 @@ sensors_new_manufacturer <- function(
 #' The function writes a single RDF/XML file in the working directory named
 #' with a timestamp (e.g., `"20251103T213015_newManufacturers.rdf"`).  
 #' It returns the path of the created file (invisible).
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
+#' @author Alessandro Oggioni, phD (2023) \email{alessandro.oggioni@cnr.it}
 #' @keywords internal
 #' 
 ### function sensors_create_rdf_XML_manufacturer
@@ -291,7 +291,7 @@ sensors_create_rdf_XML_manufacturer <- function(
 #' @param man_table description
 #' @param orcid_creator description
 #' @return description
-#' @author Alessandro Oggioni, phD (2023) \email{oggioni.a@@cnr.it}
+#' @author Alessandro Oggioni, phD (2023) \email{alessandro.oggioni@cnr.it}
 #' @keywords internal
 #' 
 ### function sensors_create_rdf_ttl_manufacturer

@@ -57,7 +57,7 @@
 #' \code{\link{sensors_sysTypeXML}}, \code{\link{sensors_compTypeXML}},
 #' \code{\link{sensors_type_rdf}}
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom readxl read_excel
 #' @importFrom dplyr filter group_by %>%
 #' @importFrom tidyr nest
@@ -271,7 +271,7 @@ sensors_catalogue <- function(
 #' `Sensors_files_system_<UUID>/system/ID_system_<UUID>.xml`.  
 #' It does not return any R object.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom xml2 read_xml xml_add_child xml_add_sibling xml_add_child xml_find_all write_xml
 #' @importFrom httr2 request req_url_query req_method req_headers req_retry req_perform
 #' @importFrom httr2 resp_check_status resp_body_json
@@ -1099,7 +1099,7 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
 #' `Sensors_files_system_<UUID>/components/ID_component_<UUID>.xml`.  
 #' The function does not return a value.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom xml2 read_xml xml_add_child xml_add_sibling write_xml
 #' @importFrom httr2 request req_url_query req_method req_headers req_retry req_perform
 #' @importFrom httr2 resp_check_status resp_body_json
@@ -1564,7 +1564,7 @@ sensors_compTypeXML <- function(sensorList, uuidsList) {
 #' Checks that a Turtle (.ttl) file is RDF-valid and contains the expected predicates:
 #' `rdf:type`, `dct:creator`, `dct:created`, and `dcat:contactPoint`.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom rdflib rdf_parse rdf_query
 #' @importFrom tibble tibble
 #' @param ttl_path Character. Path to the `.ttl` file to validate.

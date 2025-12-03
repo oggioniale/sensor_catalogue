@@ -17,6 +17,6 @@ Checks that a Turtle (.ttl) file is RDF-valid and contains the expected predicat
 \code{rdf:type}, \code{dct:creator}, \code{dct:created}, and \code{dcat:contactPoint}.
 }
 \author{
-Alessandro Oggioni, PhD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 }
 \keyword{internal}

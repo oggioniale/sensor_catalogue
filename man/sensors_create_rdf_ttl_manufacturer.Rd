@@ -25,6 +25,6 @@ The function queries the existing Fuseki triple store to determine the last
 manufacturer ID and appends new ones sequentially.
 }
 \author{
-Alessandro Oggioni, phD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, phD (2023) \email{alessandro.oggioni@cnr.it}
 }
 \keyword{internal}

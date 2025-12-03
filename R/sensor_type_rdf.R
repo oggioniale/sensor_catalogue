@@ -36,7 +36,7 @@
 #' The generated RDF files can be uploaded to a Fuseki triple store
 #' (e.g. dataset `/systemsType`) using a subsequent script or API call.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom xml2 read_xml xml_find_first xml_find_all xml_text xml_attr
 #' @importFrom stringr str_replace word str_replace_all
 #' @importFrom tools file_path_sans_ext

@@ -38,5 +38,5 @@ if (interactive()) {
 }
 \author{
 Alessandro Oggioni, PhD (2023–2025)
-\email{oggioni.a@cnr.it}
+\email{alessandro.oggioni@cnr.it}
 }

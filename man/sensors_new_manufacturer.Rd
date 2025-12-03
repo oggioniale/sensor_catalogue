@@ -46,6 +46,6 @@ sensors_new_manufacturer(
 
 }
 \author{
-Alessandro Oggioni, phD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, phD (2023) \email{alessandro.oggioni@cnr.it}
 }
 \keyword{internal}

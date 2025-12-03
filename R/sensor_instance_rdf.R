@@ -11,7 +11,7 @@
 #' the presence of key predicates:
 #' `rdf:type`, `dct:creator`, `dct:created`, and `dcat:contactPoint`.
 #' @author
-#' Alessandro Oggioni, PhD (2023) \email{oggioni.a@@cnr.it}
+#' Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 #' @importFrom uuid UUIDgenerate
 #' @param sensor_type_uri Character. URI of the sensor type (e.g. `"https://rdfdata.lteritalia.it/sensors/systemsType/UUIDTYPE"`).
 #' @param owner_name Character. First name of the sensor owner.

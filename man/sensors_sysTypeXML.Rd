@@ -39,6 +39,6 @@ The generated XML conforms to OGC SensorML 2.0 and can be registered in a Sensor
 
 }
 \author{
-Alessandro Oggioni, PhD (2023) \email{oggioni.a@cnr.it}
+Alessandro Oggioni, PhD (2023) \email{alessandro.oggioni@cnr.it}
 }
 \keyword{internal}

@@ -19,7 +19,7 @@
 #' \code{Specimen::elter_catalogues_app(default_tab = "sensors")}.
 #' @author
 #' Alessandro Oggioni, PhD (2023–2025)  
-#' \email{oggioni.a@@cnr.it}
+#' \email{alessandro.oggioni@cnr.it}
 #' @return
 #' No return value.  
 #' The function launches the Shiny application.
