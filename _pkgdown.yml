@@ -13,6 +13,7 @@ reference:
     contents:
     - sensors_catalogue
     - sensor_runApp
+    - sensors_to_datacite
 navbar:
   structure:
     left: [reference]
