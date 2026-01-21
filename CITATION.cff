@@ -25,14 +25,14 @@ abstract: Provides a suite of tools for creating, transforming, and validating m
 authors:
 - family-names: Oggioni
   given-names: Alessandro
-  email: oggioni.a@cnr.it
+  email: alessandro.oggioni@cnr.it
   orcid: https://orcid.org/0000-0002-7997-219X
 repository-code: https://github.com/oggioniale/sensor_catalogue
 url: https://github.com/oggioniale/sensor_catalogue
 contact:
 - family-names: Oggioni
   given-names: Alessandro
-  email: oggioni.a@cnr.it
+  email: alessandro.oggioni@cnr.it
   orcid: https://orcid.org/0000-0002-7997-219X
 references:
 - type: software

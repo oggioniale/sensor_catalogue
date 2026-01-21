@@ -6,7 +6,7 @@ Authors@R:
     person(given = "Alessandro",
            family = "Oggioni",
            role = c("aut", "cre"),
-           email = "oggioni.a@cnr.it",
+           email = "alessandro.oggioni@cnr.it",
            comment = c(ORCID = "0000-0002-7997-219X"))
 Description: 
  Provides a suite of tools for creating and validating metadata 
