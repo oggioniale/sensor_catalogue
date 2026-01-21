@@ -9,6 +9,8 @@ sensors_instance_ttl(
   owner_name = NULL,
   owner_surname = NULL,
   owner_orcid = NULL,
+  serial_number = NULL,
+  validate = TRUE,
   output_dir = getwd()
 )
 }
@@ -20,6 +22,10 @@ sensors_instance_ttl(
 \item{owner_surname}{Character. Last name of the sensor owner.}
 
 \item{owner_orcid}{Character. ORCID of the sensor owner (e.g. \code{"0000-0002-1825-0097"}).}
+
+\item{serial_number}{Character. Serial number of the physical sensor instance (optional).}
+
+\item{validate}{Logical. If TRUE, validates the generated TTL file (default TRUE).}
 
 \item{output_dir}{Character. Directory where to save the TTL file (default = current working directory).}
 }
@@ -33,8 +39,6 @@ sensor type, includes FOAF contact metadata, and provenance information
 (\code{dct:creator}, \code{dct:created}). Optionally validates the output RDF file.
 }
 \details{
-The RDF graph is built using the \strong{rdflib} package to ensure proper syntax,
-namespace handling, and semantic consistency.
 When \code{validate = TRUE}, the resulting TTL file is parsed and checked for
 the presence of key predicates:
 \code{rdf:type}, \code{dct:creator}, \code{dct:created}, and \code{dcat:contactPoint}.
@@ -45,7 +49,8 @@ sensors_instance_ttl(
   sensor_type_uri = "https://rdfdata.lteritalia.it/sensors/systemsType/33559394-24ae-42e6-9b63-cf56b8b52b30",
   owner_name = "John",
   owner_surname = "Doe",
-  owner_orcid = "0000-0002-1234-5678"
+  owner_orcid = "0000-0002-1234-5678",
+  serial_number = "SN-ABC-123"
 )
 }
 }
