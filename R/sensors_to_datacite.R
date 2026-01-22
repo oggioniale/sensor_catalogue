@@ -1,5 +1,5 @@
 #' Read a sensor instance TTL record and create a DataCite/Fabrica DOI record
-#' @description
+#' @description `r lifecycle::badge("stable")`
 #' Reads a **sensor instance** described in an RDF/Turtle (.ttl) file and uses the
 #' extracted metadata to create or update a DOI record in **DataCite/Fabrica**
 #' via the REST API.

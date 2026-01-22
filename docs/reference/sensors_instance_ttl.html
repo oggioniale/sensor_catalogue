@@ -50,6 +50,8 @@ sensor type, includes FOAF contact metadata, and provenance information
 <span>  owner_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  owner_surname <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  owner_orcid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  serial_number <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  validate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,6 +76,14 @@ sensor type, includes FOAF contact metadata, and provenance information
 <dd><p>Character. ORCID of the sensor owner (e.g. <code>"0000-0002-1825-0097"</code>).</p></dd>
 
 
+<dt id="arg-serial-number">serial_number<a class="anchor" aria-label="anchor" href="#arg-serial-number"></a></dt>
+<dd><p>Character. Serial number of the physical sensor instance (optional).</p></dd>
+
+
+<dt id="arg-validate">validate<a class="anchor" aria-label="anchor" href="#arg-validate"></a></dt>
+<dd><p>Logical. If TRUE, validates the generated TTL file (default TRUE).</p></dd>
+
+
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
 <dd><p>Character. Directory where to save the TTL file (default = current working directory).</p></dd>
 
@@ -84,9 +94,7 @@ sensor type, includes FOAF contact metadata, and provenance information
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The RDF graph is built using the <strong>rdflib</strong> package to ensure proper syntax,
-namespace handling, and semantic consistency.
-When <code>validate = TRUE</code>, the resulting TTL file is parsed and checked for
+    <p>When <code>validate = TRUE</code>, the resulting TTL file is parsed and checked for
 the presence of key predicates:
 <code>rdf:type</code>, <code>dct:creator</code>, <code>dct:created</code>, and <code>dcat:contactPoint</code>.</p>
     </div>
@@ -102,7 +110,8 @@ the presence of key predicates:
 <span class="r-in"><span>  sensor_type_uri <span class="op">=</span> <span class="st">"https://rdfdata.lteritalia.it/sensors/systemsType/33559394-24ae-42e6-9b63-cf56b8b52b30"</span>,</span></span>
 <span class="r-in"><span>  owner_name <span class="op">=</span> <span class="st">"John"</span>,</span></span>
 <span class="r-in"><span>  owner_surname <span class="op">=</span> <span class="st">"Doe"</span>,</span></span>
-<span class="r-in"><span>  owner_orcid <span class="op">=</span> <span class="st">"0000-0002-1234-5678"</span></span></span>
+<span class="r-in"><span>  owner_orcid <span class="op">=</span> <span class="st">"0000-0002-1234-5678"</span>,</span></span>
+<span class="r-in"><span>  serial_number <span class="op">=</span> <span class="st">"SN-ABC-123"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

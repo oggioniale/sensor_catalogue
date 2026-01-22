@@ -82,7 +82,7 @@ The current implementation connects to the **LTER-Italy** Fuseki endpoint, displ
 ### Ontologies and Reference Schemas
 The application and the underlying data model adhere to several international standards and vocabularies:
 
-- **SOSA/SSN Ontology** – describing sensors, systems, and observations ([W3C Recommendation](https://www.w3.org/TR/vocab-ssn/) and [draft version October 2025](https://w3c.github.io/sdw-sosa-ssn/ssn/))  
+- **SOSA/SSN Ontology** – describing sensors, systems, and observations ([W3C Recommendation](https://www.w3.org/TR/vocab-ssn/) and [draft version December 2025](https://w3c.github.io/sdw-sosa-ssn/ssn/))  
 - **PROV-O** – provenance metadata model ([W3C Recommendation, 2013](https://www.w3.org/TR/prov-o/))  
 - **DCAT** – dataset and catalog metadata ([W3C Recommendation, 2020](https://www.w3.org/TR/vocab-dcat-3/))  
 - **FOAF** – people and organizations representation ([FOAF Vocabulary Specification](http://xmlns.com/foaf/spec/))  

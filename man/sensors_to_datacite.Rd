@@ -55,6 +55,7 @@ Invisibly returns a list containing:
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 Reads a \strong{sensor instance} described in an RDF/Turtle (.ttl) file and uses the
 extracted metadata to create or update a DOI record in \strong{DataCite/Fabrica}
 via the REST API.
