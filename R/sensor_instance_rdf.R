@@ -82,6 +82,7 @@ sensors_instance_ttl <- function(
     paste0("    dct:identifier \"", instance_uuid, "\" ;"),
     paste0("    rdfs:label \"Sensor instance of type ", esc(basename(sensor_type_uri)), "\"@en ;"),
     paste0("    rdfs:comment \"This sensor instance derives from the type ", esc(sensor_type_uri), ".\"@en ;"),
+    paste0("    dcat:landingPage <", instance_uri, ".xml> ;"),
     serial_triple,
     paste0("    dct:creator <", owner_orcid, "> ;"),
     paste0("    dct:created \"", now_iso, "\"^^xsd:dateTime ;"),

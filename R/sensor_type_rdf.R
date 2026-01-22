@@ -47,7 +47,7 @@
 #' @examples
 #' \dontrun{
 #' sensors_type_rdf(
-#'   files_path = "Sensors_files_system_6020a870-46c2-4b9b-a8d1-d7ebc9f6079b/",
+#'   files_path = "Sensors_files_system_23b23831-47af-4f8b-b54f-41a7dfb19018/",
 #'   creator_name = "John",
 #'   creator_surname = "Doe",
 #'   creator_orcid = "0000-0002-1234-5678"
@@ -195,8 +195,11 @@ sensors_type_rdf <- function(
     }
     # sameAs
     sameAs <- paste0("       rdfs:seeAlso <", identifier, "> ;")
+    # landingPage
+    landingPage <- paste0("       dcat:landingPage <", identifier, ".xml> ;")
     # RDF_identifier
     RDF_identifier <- paste0("<https://rdfdata.lteritalia.it/sensors/systemsType/", uuid, ">") #TODO add model name and manufacturer name (e.g. https://rdfdata.lteritalia.it/sensors/systemsType/Vantage/Davis_Instruments/uuid)
+    identifier <- paste0("       dct:identifier \"", uuid, "\" ;")
     components <- ""
     attached <- ""
     # Which capabilities are in the system?
@@ -428,7 +431,9 @@ sensors_type_rdf <- function(
           "^.+/", "")
         RDF_comp_uri <- paste0("https://rdfdata.lteritalia.it/sensors/componentsType/", comp_id)
         comp_type <- "       rdf:type sosa:Sensor , ssn:System , prov:Entity ;"
+        comp_identifiers <- paste0("       dct:identifier \"", comp_id, "\" ;")
         comp_sameAs <- paste0("       rdfs:seeAlso <", xml2::xml_find_all(comp_xml, ".//gml:identifier/text()"), "> ;")
+        comp_landingPage <- paste0("       dcat:landingPage <", xml2::xml_find_all(comp_xml, ".//gml:identifier/text()"), ".xml> ;")
         comp_description <- xml2::xml_find_all(comp_xml, ".//gml:description/text()")
         comp_name <- xml2::xml_find_all(comp_xml, ".//gml:name/text()")
         comp_attached <- paste0(
@@ -646,9 +651,11 @@ sensors_type_rdf <- function(
           comp_ttl_prefixes,
           paste0("<", RDF_comp_uri, ">"),
           comp_type,
+          comp_identifiers,
           comp_sameAs, # gml:identifier
-          paste0('       rdfs:comment """', comp_description, '""" @en ;'), # gml:description
+          comp_landingPage,
           paste0('       rdfs:label """', comp_name, '""" @en ;'), # gml:name
+          paste0('       rdfs:comment """', comp_description, '""" @en ;'), # gml:description
           comp_attached,
           comp_created_block,
           creator_block,
@@ -711,9 +718,11 @@ sensors_type_rdf <- function(
       ttl_prefixes,
       RDF_identifier,
       sensor_type,
+      identifier,
       sameAs, # gml:identifier
-      paste0('       rdfs:comment """', description, '""" @en ;'), # gml:description
+      landingPage,
       paste0('       rdfs:label """', name, '""" @en ;'), # gml:name
+      paste0('       rdfs:comment """', description, '""" @en ;'), # gml:description
       manufacturer,
       components,
       attached,
