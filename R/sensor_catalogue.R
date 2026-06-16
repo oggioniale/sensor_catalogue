@@ -111,8 +111,8 @@ sensors_catalogue <- function(
   excel_file <- dplyr::filter(excel_file, rowSums(is.na(excel_file)) != ncol(excel_file))
   
   # Group rows by sensor name
-  excel_file <- excel_file %>%
-    dplyr::group_by(sensor) %>%
+  excel_file <- excel_file |>
+    dplyr::group_by(sensor) |>
     tidyr::nest()
   
   log_ok("SensorInfo sheet loaded and cleaned.")
@@ -163,7 +163,7 @@ sensors_catalogue <- function(
       
       log_section("Creating TTL for missing manufacturers")
       
-      to_create <- manufacturer_list %>%
+      to_create <- manufacturer_list |>
         dplyr::filter(name %in% missing)
       
       sensors_new_manufacturer(man_table = to_create)
@@ -223,30 +223,30 @@ sensors_catalogue <- function(
     }
     
     utils::setTxtProgressBar(pb, i)
+    
+    if (!step4_ok) {
+      stop("\n❌ SensorML generation failed. RDF step aborted.\n")
+    }
+    
+    log_ok("SensorML generation completed successfully.")
+    
+    # ------------------------------------------------------------
+    # 5. Generate RDF (if step4 was successful)
+    # ------------------------------------------------------------
+    log_section("Generating RDF for sensors and components")
+    
+    sensors_type_rdf(
+      files_path = paste0(root_dir, "/"),
+      creator_name = creator_name,
+      creator_surname = creator_surname,
+      creator_orcid = creator_orcid
+    )
+    
+    log_ok("RDF files created successfully.")
+    log_ok("sensors_catalogue() finished successfully.")
   }
   
   close(pb)
-  
-  if (!step4_ok) {
-    stop("\n❌ SensorML generation failed. RDF step aborted.\n")
-  }
-  
-  log_ok("SensorML generation completed successfully.")
-  
-  # ------------------------------------------------------------
-  # 5. Generate RDF (if step4 was successful)
-  # ------------------------------------------------------------
-  log_section("Generating RDF for sensors and components")
-  
-  sensors_type_rdf(
-    files_path = paste0(root_dir, "/"),
-    creator_name = creator_name,
-    creator_surname = creator_surname,
-    creator_orcid = creator_orcid
-  )
-  
-  log_ok("RDF files created successfully.")
-  log_ok("sensors_catalogue() finished successfully.")
 }
 
 #' Generate SensorML XML description for a sensor system type
@@ -296,9 +296,9 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
     "Sensors_files_system_",
     system_uuid
   )
+  dir_name <- "system"
   if (!dir.exists(root_dir)) {
     dir.create(root_dir)
-    dir_name <- "system"
     dir.create(paste0(
       root_dir, "/", dir_name
     ))
@@ -554,7 +554,7 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
       }
       ORDER BY ASC(?l)
       LIMIT 1")
-    sensorType_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
+    sensorType_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") %>%
       httr2::req_url_query(query = sensorType_query) %>%
       httr2::req_method("POST") %>%
       httr2::req_headers(Accept = "application/sparql-results+json") %>%
@@ -837,7 +837,7 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
     if (!is.na(sensor_system$resolution)) {
       uom_nerc_query <- paste0(
         uom_query_I_part,
-        sensor_system$accuracy_uom,
+        sensor_system$resolution_uom,
         uom_query_II_part
       )
       nercUOM <- httr2::request(ireaEndpoint) %>%
@@ -848,17 +848,17 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
         httr2::req_perform()
       httr2::resp_check_status(nercUOM)
       nercUOM_JSON <- httr2::resp_body_json(nercUOM)
-      accuracy_uom_def <- nercUOM_JSON$results$bindings[[1]]$c$value
+      resolution_uom_def <- nercUOM_JSON$results$bindings[[1]]$c$value
       if (grepl("\\s+", sensor_system$resolution)) {
         xml2::xml_add_child(g, "sml:capability", "name" = "Resolution") %>%
           xml2::xml_add_child(., "swe:QuantityRange", "definition" = "http://vocab.nerc.ac.uk/collection/W04/current/CAPB0007/") %>%
-          xml2::xml_add_child(., "swe:uom", "code" = sensor_system$resolution_uom, "xlink:href" = sensor_system$resolution_uom_def) %>%
+          xml2::xml_add_child(., "swe:uom", "code" = sensor_system$resolution_uom, "xlink:href" = resolution_uom_def) %>%
           xml2::xml_add_sibling(., "swe:value", sensor_system$resolution)
       } else {
         if (!is.na(as.numeric(sensor_system$resolution))) {
           xml2::xml_add_child(g, "sml:capability", "name" = "Resolution") %>%
             xml2::xml_add_child(., "swe:Quantity", "definition" = "http://vocab.nerc.ac.uk/collection/W04/current/CAPB0007/") %>%
-            xml2::xml_add_child(., "swe:uom", "code" = sensor_system$resolution_uom, "xlink:href" = sensor_system$resolution_uom_def) %>%
+            xml2::xml_add_child(., "swe:uom", "code" = sensor_system$resolution_uom, "xlink:href" = resolution_uom_def) %>%
             xml2::xml_add_sibling(., "swe:value", sensor_system$resolution)
         } else {
           xml2::xml_add_child(g, "sml:capability", "name" = "Resolution") %>%
@@ -923,7 +923,7 @@ sensors_sysTypeXML <- function(sensorList, uuidsList) {
     }
     ORDER BY ASC(?l)
     LIMIT 1")
-    manufacturer_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
+    manufacturer_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") %>%
       httr2::req_url_query(query = contacts_query) %>%
       httr2::req_method("POST") %>%
       httr2::req_headers(Accept = "application/sparql-results+json") %>%
@@ -1246,7 +1246,7 @@ sensors_compTypeXML <- function(sensorList, uuidsList) {
       }
       ORDER BY ASC(?l)
       LIMIT 1")
-      componentType_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
+      componentType_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") %>%
         httr2::req_url_query(query = componentType_query) %>%
         httr2::req_method("POST") %>%
         httr2::req_headers(Accept = "application/sparql-results+json") %>%
@@ -1468,7 +1468,7 @@ sensors_compTypeXML <- function(sensorList, uuidsList) {
     }
     ORDER BY ASC(?l)
     LIMIT 1")
-      manufacturer_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
+      manufacturer_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") %>%
         httr2::req_url_query(query = contacts_query) %>%
         httr2::req_method("POST") %>%
         httr2::req_headers(Accept = "application/sparql-results+json") %>%

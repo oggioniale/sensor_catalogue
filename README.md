@@ -192,6 +192,6 @@ Example usage:
 ## Dependencies
 
 - Core R packages: dplyr, tidyr, readxl, xml2, stringr, uuid, httr2, tools
-- Triple store: Apache Jena Fuseki (e.g., http://fuseki1.get-it.it/)
+- Triple store: Apache Jena Fuseki (e.g., https://fuseki.lteritalia.it/)
 - Controlled vocabularies: NERC Vocabulary Server (collections P06, P10)
 - Ontologies: SOSA, SSN, FOAF, PROV-O, DCAT, Schema.org

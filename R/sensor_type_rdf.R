@@ -198,8 +198,9 @@ sensors_type_rdf <- function(
     # landingPage
     landingPage <- paste0("       dcat:landingPage <", identifier, ".xml> ;")
     # RDF_identifier
-    RDF_identifier <- paste0("<https://rdfdata.lteritalia.it/sensors/systemsType/", uuid, ">") #TODO add model name and manufacturer name (e.g. https://rdfdata.lteritalia.it/sensors/systemsType/Vantage/Davis_Instruments/uuid)
-    identifier <- paste0("       dct:identifier \"", uuid, "\" ;")
+    RDF_id <- paste0("https://rdfdata.lteritalia.it/sensors/systemsType/", uuid)
+    RDF_identifier <- paste0("<", RDF_id, ">") #TODO add model name and manufacturer name (e.g. https://rdfdata.lteritalia.it/sensors/systemsType/Vantage/Davis_Instruments/uuid)
+    dct_identifier <- paste0("       dct:identifier \"", uuid, "\" ;")
     components <- ""
     attached <- ""
     # Which capabilities are in the system?
@@ -209,7 +210,7 @@ sensors_type_rdf <- function(
         accuracy_xml <- xml2::xml_find_first(xml, ".//sml:capability[@name='Accuracy']")
         has_quantity_or_text <- xml2::xml_find_first(accuracy_xml, ".//swe:Quantity")
         has_quantity_range <- xml2::xml_find_first(accuracy_xml, ".//swe:QuantityRange")
-        accuracy_uri <- paste0("<", identifier, "#SensorAccuracy>")
+        accuracy_uri <- paste0("<", RDF_id, "#SensorAccuracy>")
         if (length(has_quantity_or_text) > 0) {
           accuracy_uom_uri <- xml2::xml_attr(xml2::xml_find_first(accuracy_xml, ".//swe:uom"), "href")
           accuracy_value <- xml2::xml_text(accuracy_xml, ".//swe:value")
@@ -244,7 +245,7 @@ sensors_type_rdf <- function(
         measurement_range_uom_uri <- xml2::xml_attr(xml2::xml_find_first(measurement_range_xml, ".//swe:uom"), "href")
         measurement_range_value_min <- stringr::word(xml2::xml_text(measurement_range_xml, ".//swe:value"), 1)
         measurement_range_value_max <- stringr::word(xml2::xml_text(measurement_range_xml, ".//swe:value"), 2)
-        measurement_range_uri <- paste0("<", identifier, "#SensorMeasurementRange>")
+        measurement_range_uri <- paste0("<", RDF_id, "#SensorMeasurementRange>")
         measurement_range_schema <- c(
           paste0("schema:minValue ", measurement_range_value_min, " ;"),
           paste0("schema:maxValue ", measurement_range_value_max, " ;"),
@@ -266,7 +267,7 @@ sensors_type_rdf <- function(
         precision_xml <- xml2::xml_find_first(xml, ".//sml:capability[@name='Precision']")
         precision_uom_uri <- xml2::xml_attr(xml2::xml_find_first(precision_xml, ".//swe:uom"), "href")
         precision_value <- xml2::xml_text(precision_xml, ".//swe:value")
-        precision_uri <- paste0("<", identifier, "#SensorPrecision>")
+        precision_uri <- paste0("<", RDF_id, "#SensorPrecision>")
         precision_schema <- c(
           paste0("schema:value ", precision_value, " ;"),
           paste0("schema:unitCode <", precision_uom_uri, "> .")
@@ -286,7 +287,7 @@ sensors_type_rdf <- function(
         resolution_xml <- xml2::xml_find_first(xml, ".//sml:capability[@name='Resolution']")
         has_quantity_or_text <- xml2::xml_find_first(resolution_xml, ".//swe:Quantity")
         has_quantity_range <- xml2::xml_find_first(resolution_xml, ".//swe:QuantityRange")
-        resolution_uri <- paste0("<", identifier, "#SensorResolution>")
+        resolution_uri <- paste0("<", RDF_id, "#SensorResolution>")
         if (length(has_quantity_or_text) > 0) {
           resolution_uom_uri <- xml2::xml_attr(xml2::xml_find_first(resolution_xml, ".//swe:uom"), "href")
           resolution_value <- xml2::xml_text(resolution_xml, ".//swe:value")
@@ -320,7 +321,7 @@ sensors_type_rdf <- function(
         sensitivity_xml <- xml2::xml_find_first(xml, ".//sml:capability[@name='Sensitivity']")
         sensitivity_uom_uri <- xml2::xml_attr(xml2::xml_find_first(sensitivity_xml, ".//swe:uom"), "href")
         sensitivity_value <- xml2::xml_text(sensitivity_xml, ".//swe:value")
-        sensitivity_uri <- paste0("<", identifier, "#SensorSensitivity>")
+        sensitivity_uri <- paste0("<", RDF_id, "#SensorSensitivity>")
         sensitivity_schema <- c(
           paste0("schema:value ", sensitivity_value, " ;"),
           paste0("schema:unitCode <", sensitivity_uom_uri, "> .")
@@ -340,7 +341,7 @@ sensors_type_rdf <- function(
         frequency_xml <- xml2::xml_find_first(xml, ".//sml:capability[@name='MinimumReportingFrequency']")
         has_quantity_or_text <- xml2::xml_find_first(frequency_xml, ".//swe:Quantity")
         has_quantity_range <- xml2::xml_find_first(frequency_xml, ".//swe:QuantityRange")
-        frequency_uri <- paste0("<", identifier, "#SensorFrequency>")
+        frequency_uri <- paste0("<", RDF_id, "#SensorFrequency>")
         if (length(has_quantity_or_text) > 0) {
           frequency_uom_uri <- xml2::xml_attr(xml2::xml_find_first(frequency_xml, ".//swe:uom"), "href")
           frequency_value <- xml2::xml_text(frequency_xml, ".//swe:value")
@@ -718,7 +719,7 @@ sensors_type_rdf <- function(
       ttl_prefixes,
       RDF_identifier,
       sensor_type,
-      identifier,
+      dct_identifier,
       sameAs, # gml:identifier
       landingPage,
       paste0('       rdfs:label """', name, '""" @en ;'), # gml:name

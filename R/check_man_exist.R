@@ -11,7 +11,7 @@
 #' or `NULL` if no matches are found.
 #' @details
 #' The function sends a SPARQL query via `httr2` to the endpoint
-#' <http://fuseki1.get-it.it/manufacturers>. It uses a case-insensitive regular expression
+#' <https://fuseki.lteritalia.it/manufacturers>. It uses a case-insensitive regular expression
 #' to match manufacturer names. The returned list is parsed from JSON and converted
 #' into a tibble.
 #' @author
@@ -33,7 +33,7 @@
 ### function check_man_exist
 sensors_check_man_exist <- function(
     manufacturer_name,
-    endpoint = "http://fuseki1.get-it.it/manufacturers",
+    endpoint = "https://fuseki.lteritalia.it/manufacturers",
     verbose = FALSE) {
   # Input validation
   if (!is.character(manufacturer_name) || length(manufacturer_name) != 1) {
@@ -189,7 +189,7 @@ sensors_create_rdf_XML_manufacturer <- function(
   WHERE {
     ?c rdf:type foaf:Organization.
   }"
-  number_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
+  number_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") %>%
     httr2::req_url_query(query = query) %>%
     httr2::req_method("POST") %>%
     httr2::req_headers(Accept = "application/sparql-results+json") %>%
@@ -305,65 +305,77 @@ sensors_create_rdf_ttl_manufacturer <- function(
   
   # --- Retrieve last manufacturer count from Fuseki ---
   query <- "
-  PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-  SELECT (COUNT(?c) AS ?number)
-  WHERE { ?c rdf:type foaf:Organization. }"
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT (COUNT(?c) AS ?number)
+WHERE { ?c rdf:type foaf:Organization. }"
   
-  number_qr <- httr2::request("http://fuseki1.get-it.it/manufacturers") %>%
-    httr2::req_url_query(query = query) %>%
-    httr2::req_method("POST") %>%
-    httr2::req_headers(Accept = "application/sparql-results+json") %>%
-    httr2::req_retry(max_tries = 3, max_seconds = 120) %>%
+  number_qr <- httr2::request("https://fuseki.lteritalia.it/manufacturers") |>
+    httr2::req_url_query(query = query) |>
+    httr2::req_method("POST") |>
+    httr2::req_headers(Accept = "application/sparql-results+json") |>
+    httr2::req_retry(max_tries = 3, max_seconds = 120) |>
     httr2::req_perform()
   
   httr2::resp_check_status(number_qr)
   number_JSON <- httr2::resp_body_json(number_qr)
-  last_number <- number_JSON$results$bindings[[1]]$number$value
+  last_number <- as.integer(number_JSON$results$bindings[[1]]$number$value %||% 0)
   
   # --- Prepare RDF file ---
   n_new_records <- nrow(man_table)
   time_4file <- strftime(Sys.time(), format = "%Y%m%dT%H%M%S")
   fileTTL_path <- paste0(time_4file, "_newManufacturers.ttl")
-  fileTTL <- file(fileTTL_path, "wb", encoding = "UTF-8")
   
-  for (i in 1:n_new_records) {
+  # Apri in testo
+  fileTTL <- file(fileTTL_path, open = "w", encoding = "UTF-8")
+  on.exit(close(fileTTL), add = TRUE)
+  
+  # Scrivi prefix UNA VOLTA
+  prefixes <- c(
+    "@prefix org: <http://www.w3.org/ns/org#> .",
+    "@prefix dcterms: <http://purl.org/dc/terms/> .",
+    "@prefix addr:  <http://wymiwyg.org/ontologies/foaf/postaddress#> .",
+    "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
+    "@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .",
+    "@prefix foaf: <http://xmlns.com/foaf/0.1/> .",
+    "@prefix dct:  <http://purl.org/dc/terms/> .",
+    ""
+  )
+  writeLines(prefixes, con = fileTTL)
+  
+  # Helper: evita "NA" letterali nei TTL
+  nz <- function(x) ifelse(is.na(x) | !nzchar(x), "", x)
+  
+  for (i in seq_len(n_new_records)) {
+    
+    subj_id <- last_number + i
+    created_now <- strftime(Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+    
     org <- c(
-      "@prefix org: <http://www.w3.org/ns/org#> .",
-      "@prefix dcterms: <http://purl.org/dc/terms/> .", 
-      "@prefix addr:  <http://wymiwyg.org/ontologies/foaf/postaddress#> .",
-      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .",
-      "@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .",
-      "@prefix foaf: <http://xmlns.com/foaf/0.1/> .",
-      "@prefix dct:  <http://purl.org/dc/terms/> .",
-      "",
-      paste0("<http://rdfdata.get-it.it/sensors/manufacturers/", as.numeric(last_number) + i, ">"),
-      "        a              foaf:Organization ;",
-      paste0("        vcard:email    <mailto:", man_table$email[i], "> ;"),
-      paste0('        addr:address   [ addr:deliveryPoint  [ addr:location  [ addr:building          "', man_table$building[i], '" ;'),
-      paste0('                                                                addr:country           "', man_table$country[i], '" ;'),
-      paste0('                                                                addr:postcode          "', man_table$postcode[i], '" ;'),
-      paste0('                                                                addr:region            "', man_table$region[i], '" ;'),
-      paste0('                                                                addr:streetNr          "', man_table$streetNr[i], '" ;'),
-      paste0('                                                                addr:thoroughfareName  "', man_table$thoroughfareName[i], '" ;'),
-      paste0('                                                                addr:town              "', man_table$town[i], '"'),
-      "                                                              ]",
-      "                                             ]",
-      "                       ] ;",
-      paste0("        foaf:homepage  <", man_table$homepage[i], "> ;"),
-      paste0('        foaf:name      "', man_table$name[i], '" ;'),
-      paste0("        foaf:phone     <tel:", chartr(' ', '-', man_table$phone[i]), "> ;"),
-      paste0("        dct:creator     <", orcid_creator, "> ;"),
-      paste0(
-        '        dct:created      "',
-        strftime(Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ", tz = ""),
-        '"^^xsd:dateTime .'
-      )
+      paste0("<http://rdfdata.get-it.it/sensors/manufacturers/", subj_id, ">"),
+      "  a foaf:Organization ;",
+      paste0("  vcard:email <mailto:", nz(man_table$email[i]), "> ;"),
+      paste0("  addr:address [ addr:deliveryPoint [ addr:location ["),
+      paste0('    addr:building         "', nz(man_table$building[i]), '" ;'),
+      paste0('    addr:country          "', nz(man_table$country[i]), '" ;'),
+      paste0('    addr:postcode         "', nz(man_table$postcode[i]), '" ;'),
+      paste0('    addr:region           "', nz(man_table$region[i]), '" ;'),
+      paste0('    addr:streetNr         "', nz(man_table$streetNr[i]), '" ;'),
+      paste0('    addr:thoroughfareName "', nz(man_table$thoroughfareName[i]), '" ;'),
+      paste0('    addr:town             "', nz(man_table$town[i]), '"'),
+      "  ] ] ] ;",
+      paste0("  foaf:homepage <", nz(man_table$homepage[i]), "> ;"),
+      paste0('  foaf:name "', nz(man_table$name[i]), '" ;'),
+      paste0("  foaf:phone <tel:", chartr(" ", "-", nz(man_table$phone[i])), "> ;"),
+      paste0("  dct:creator <", orcid_creator, "> ;"),
+      paste0('  dct:created "', created_now, '"^^xsd:dateTime .'),
+      "" # riga vuota tra record
     )
+    
+    # SCRIVI DENTRO IL LOOP
+    writeLines(org, con = fileTTL)
   }
   
-  write(org, file = fileTTL)
-  close(fileTTL)
   message("✅ TTL file created: ", fileTTL_path)
   
   # --- Validate TTL file ---
